@@ -21,7 +21,7 @@
 class Bit
 {
 public:
-    Bit(const QString &name=QString());
+    Bit(const QString &name=QString(),bool value = false);
     /* returns name of bit */
     const QString &name() const;
     /* sets name of bit */

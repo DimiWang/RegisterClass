@@ -160,7 +160,7 @@ bool BitFieldParser::constant() const { return value_readonly;}
 
 const char*  BitFieldParser::description(){    return field(DESCR);}
 
-const bool BitFieldParser::hasDoubleRange()const{    return has_double_range;}
+bool BitFieldParser::hasDoubleRange()const{    return has_double_range;}
 
 qint32 BitFieldParser::lsb() const{    return m_range_lsb;}
 qint32 BitFieldParser::msb() const{    return m_range_msb;}

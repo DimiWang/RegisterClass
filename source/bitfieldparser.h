@@ -22,7 +22,7 @@ public :
     qint32 value() const;
     bool constant() const;
     const char*  description();
-    const bool hasDoubleRange()const;
+    bool hasDoubleRange()const;
     qint32 lsb() const;
     qint32 msb() const;
     bool isOk() const;

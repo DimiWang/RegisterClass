@@ -2,8 +2,8 @@
  * @file:register.h   -
  * @description:  this is class to maintain bits with names.
  *              Register representation as list of bits
- * @project: BENCH OnSemiconductor
- * @date: 2014\11\27 13-43-41
+ * @project:
+ * @date:
  *
  */
 
@@ -28,9 +28,9 @@ class Register;
 /* bits splitter */
 #define BITS_SPLITTER (';')
 
-#define WARNING(TXT) MAINAPP->log(Logs::Warning,(TXT) )
-// TODO global registers list
 
+#define WARNING(txt) signal_Warning(txt);
+#define ERROR(txt) signal_Error(txt);
 
 
 /****************************************************************************
@@ -67,13 +67,13 @@ public:
     bool parseBit_Method2(const QString &field, int index);
 
     /* adds bit by pointer*/
-    void addBit(Bit *pbit, qint32 put_to = -1);
+    void addSingleBit(Bit *pbit, qint32 put_to = -1);
     void removeBit(Bit *pbit);
     void removeBitByName(const QString &name);
     /* adds single bit with name*/
-    bool addBit(const QString &bitname, qint32 put_to = -1);
+    bool addField(const QString &field, qint32 put_to = -1);
     /* adds registers as string list*/
-    bool addBits(const QString &bit_string, qint32 put_to = -1);
+    bool addFieldList(const QStringList &field_list, qint32 put_to = -1);
 
     /* sets value to field (! Field is a bit or bit band )*/
     bool setValue(const QString &field, quint32 value);
@@ -229,6 +229,7 @@ public:
         bool readonly;
         QString descr;
         Virtual(){val=0;preg=0;readonly=false;}
+        virtual ~Virtual(){}
         virtual bool set(quint32 val)=0;
         virtual quint32 get(){return val;}
     };
@@ -283,10 +284,13 @@ public:
     void setSub(bool on);
 
 signals:
+
     void removed();
     void changed();
     void signal_updateSet(const QString &regname);
     void signal_updateGet(const QString &regname);
+    void signal_Warning(const QString &);
+    void signal_Error(const QString &);
 
 #define __SET(name) do{\
     if(isSub())  emit mp_parent->signal_updateSet(name);\
@@ -302,6 +306,7 @@ protected:
     void makeTemporary();
     void addTemporary(Bit *pbit);
     void clearTemporary();
+    void moveOffset(int index);
 
     /* virtual regs map*/
     QMap<QString,Virtual*> m_vregs;
@@ -310,6 +315,7 @@ protected:
     quint32 m_options;
     Register *mp_parent;
     Register *mp_temporary;
+    int m_offset;
     /* variable is sub register*/
     bool m_isSub;
     /* read only */
@@ -317,7 +323,7 @@ protected:
     /* */    
     UpdatePolicy m_update_policy;
     /**/
-    QString m_setup_script;
+    QString m_setup_backup;
     /* register name*/
     QString m_name;
     /* bits list */

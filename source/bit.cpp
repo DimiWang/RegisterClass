@@ -17,10 +17,10 @@
  * @description:
  * @return: (  )
  ****************************************************************************/
-Bit::Bit(const QString &name)
+Bit::Bit(const QString &name, bool value)
 {
     m_name = name;
-    m_value = false;
+    m_value = value;
     m_group_id = 1;
     m_constant =0;
 }
