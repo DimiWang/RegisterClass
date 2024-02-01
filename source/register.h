@@ -49,119 +49,174 @@ public:
             SaveInitScript=4,
             CaseSensitive =8,/* not implemented*/
          };
+
     /* bit LSB(lower) or MSB(higher) */
-    typedef enum { MSB, LSB ,MSB8 ,MSBITEM}BitOrder;
+    typedef enum { MSB, LSB ,MSB8 ,MSBITEM} BitOrder;
+
     /* zero constructor*/
     explicit  Register();
+
     /* bit list in format */
     Register(const QString &init_script, const QString  &name = QString());
+
     /* makes register with size and zero bit names */
     Register(qint32 bit_count,const QString  &name = QString(), quint32 options= AllowSameName|SaveInitScript);
+
     /* copy consdtructor*/
     Register( const Register &reg);
     virtual ~Register();
+
+    /* set register name*/
+    void setName(const QString &name);
+
     bool blockSignals(bool b);
+
+    /* make setup -build register*/
     bool makeSetup(const QString &init_script);
+
+    /* return backup setup*/
     const QString getSetup();
+
+    /* parsing methods */
     bool parseBit_Method1(const QString &field, int index);
     bool parseBit_Method2(const QString &field, int index);
 
-    /* adds bit by pointer*/
+    /* adds single bit by pointer*/
     void addSingleBit(Bit *pbit, qint32 put_to = -1);
+
+    /* remove bit by pointer*/
     void removeBit(Bit *pbit);
-    void removeBitByName(const QString &name);
+
+    /* remove all bits by name*/
+    void removeByName(const QString &name);
+
     /* adds single bit with name*/
     bool addField(const QString &field, qint32 put_to = -1);
+
     /* adds registers as string list*/
     bool addFieldList(const QStringList &field_list, qint32 put_to = -1);
 
     /* sets value to field (! Field is a bit or bit band )*/
     bool setValue(const QString &field, quint32 value);
+
     /* sets value to field (! Field is a bit or bit band )*/
     bool setValue(quint32 from, quint32 to, quint32 value);
-    /* regroups bits/fields by name. if next field is different group_id++*/
-    void regroup();
+
+    /* sets single bit value by bit number  */
+    bool setBitValue(qint32 bitn, bool value);
 
     /* gets value from field*/
     quint32 value(const QString &field);
+
     /* gets value from field [from:to]*/
     quint32 value(qint32 from, qint32 to);
+
     /* gets value from bit number*/
     quint32 value(qint32 bit_number);
 
-    /* sets single bit value by bit number  */
-    bool setBit(qint32 bitn, bool value);
-    /* sets single bit value by bit name */
-    bool setBit(const QString &bitname, bool value);
+    /* gets bit value by number */
+    bool bitValue(qint32 bitn);
 
     /* returns bit pointer by name*/
-    Bit *bit(const char *bit_name);
     Bit *bit(const QString &bit_name);
-    /* gets bit value by number */
-    bool bit(qint32 bitn);
+
     /* returns pointer to bit at bitn */
     Bit *bitAt(qint32 bitn);
+
+    /* regroups bits/fields by name. if next field is different group_id++*/
+    void regroup();
+
     /*if bit presents in register*/
     bool contains(const QString &name);
-    /* joins other register*/
+
+    /* joins other register */
     void join(Register &reg);
     void join(Register *preg);
+
     /* converts to byte array lsb first*/
     QByteArray toByteArray(BitOrder bitorder = LSB, bool contiguously=false);
-    /**/
+
+    /* converts to hexademical string*/
     QString toHex(BitOrder bitorder = LSB, bool contiguously=false);
+
     /* loads from byte array */
     bool fromByteArray(const QByteArray &bytearray, qint32 scanchain_length=-1,BitOrder bitorder = LSB, bool contiguously=false);
-    /**/
+
+    /* from hexademical representation */
     bool fromHex(const QString &hex, qint32 scanchain_length=-1,BitOrder bitorder = LSB, bool contiguously=false);
+
     /* converts to bit string format:101010111 */
     QByteArray toBitString(BitOrder bitorder = LSB);
+
     /* converts to unsigned int 32bit.rest(>32 bit) is ignored*/
     quint32 toUInt(BitOrder bitorder = LSB);
+
     /* set register as unsigned int 32bit.rest(>32 bit) is ignored*/
     void setUInt(quint32 value,BitOrder bitorder= LSB);
+
     /* loads from Bit String */
     void fromBitString(const QByteArray &bytearray, BitOrder bitorder = LSB);
+
     /* Converts from string to integer. Example: from '1111 0000' format to 0xF0 */
     static quint32 fromBitStringToUint(const QByteArray & ba);
+
     /* converts to string format bit=1 */
     const QString toString(const QString &format="@name=@value;", bool grouped= true, bool include_virtual=false, bool skip_empty=true);
     bool fromString(const QString &text,const char ln_separator=';', const char eq_separator='=');
 
     /* bits count*/
     qint32 size(void) const {return m_chain.size();}
+
     /* finds bit number by name*/
     qint32 findBitByName(const QString &name);
+
+    /* find bit by pointer*/
     int findBit(Bit *pbit);
+
     /* clears chain (all bits) */
     void clear(void);
+
     /* returns 1 if readonly*/
     bool readOnly() const;
-    /* sets to readonly*/
-    void setReadOnly(bool on);    
+
+    /* sets this register as readonly not allowed to change*/
+    void setReadOnly(bool on);
+
+    /* operator [] by field name*/
     Register &operator[] (const char *field);
     Register &operator[] (const QString &field);
+
+    /* converts to int, bool, unsigned int*/
     operator int();
     operator bool();
     operator unsigned int();
+
     /* operator = * doesnt keep names */
     Register &operator = (const Register &reg);
     Register &operator = (quint32 val);
 
+    /* operator !*/
     Register operator ! ();
+
+    /* operator ~*/
     Register operator ~ ();
-    /* AND operator */    
+
+    /* AND operator */
     Register &operator &= (Register &reg);
     Register &operator &= (quint32 val);
+
     /* XOR operator */
     Register &operator ^= (Register &reg);
     Register &operator ^= (quint32 val);
+
     /* OR operator*/
     Register &operator |= (Register &reg);
     Register &operator |= (quint32 val);
+
     /* equal operator*/
     bool operator == ( Register &reg);
     bool operator == ( quint32 reg);
+
     /* not equal operator */
     bool operator != ( Register &reg);
     bool operator != ( quint32 reg);
@@ -169,24 +224,33 @@ public:
 
     /* fills bits with value*/
     void fill(bool value, qint32 count = -1, qint32 start = 0);
+
     /* rotate register to direction "MSB->LSB - right"
      *                              "LSB->MSB - left */
     void rotateRight(int count=1, bool fill=false);
     void rotateLeft(int count=1, bool fill=false);
+
     /*roll register LSB <>MSB*/
     Register *roll();
+
     /* inverts all bits*/
     void invert();
-    /* sets size of register */
-    void resize(qint32 size);
-    /* set register name*/
-    void setName(const QString &name);
 
+    /* sets new size of register.
+     * adds bits*/
+    void resize(qint32 size);
+
+    /* converts string to Unsigned Integer
+     * 0x00 - is a hex
+     * 0 - is decimal
+     * 0b00 - is binary
+    */
     static unsigned int strToUInt(const QString &text, bool *ok=0);
 
     /* get register name*/
     const QString &name() const {return m_name;}
-    /* 
+
+    /*
         (***) 
             Sub register is a temporary register which contains the same bits 
             as former register. 
@@ -199,26 +263,47 @@ public:
             reg.sub(0,1); // will make sub register which points to the same bits
             // ^ contains: [pts_bit0];[pts_bit1]            
     */
+
     /* fill in preg with bits as sub register*/
     void makeSubRegister(Register *preg, qint32 group_id);
+
     /* fill in preg with bits as sub register*/
     void makeSubRegister(Register *preg, qint32 from, qint32 to);
-    /* makes sub(***) register and returns pointer to temporary. from ~ to (including from and to)*/
+
+     /* makes sub register and returns pointer to temporary.
+      *  from ~ to (including from and to)*/
     Register *  sub(qint32 from, qint32 to=-1);
-    /* makes sub register and returns pointer to temporary. sorts bits by name*/
-    Register *  sub(const QString &bitname);
-    Register *sub(const QStringList &bits);
-    /* makes sub register and returns pointer to temporary. by extra parameter name with value*/
-    Register *  sub(const QString &extra_name, const QString &extra_value);
-    Register *  sub(const QString &extra_name, const QStringList &extra_values);
+
+    /* makes sub register and returns pointer to temporary
+     * . sorts bits by name*/
+    Register * sub(const QString &fieldname);
+
+    /* makes sub register and returns pointer to temporary
+     * . by field list*/
+    Register * sub(const QStringList &fields);
+
+    /* makes sub register and returns pointer to temporary
+     * . by extra parameter name with value*/
+    Register * sub(const QString &extra_name, const QString &extra_value);
+
+    /* makes sub register and returns pointer to temporary
+     * . by extra values list*/
+    Register * sub(const QString &extra_name, const QStringList &extra_values);
+
     /* is subregister */
     bool isSub() const;
+
     /* checks if regsiter is same has same size and same bit names*/
     bool isSame(Register *preg);
+
     /* if register is empty*/
     bool isEmpty() const ;
+
     /* copies register src to dst .name not copy. success when dst.size == 0 and register dst same as src*/
     static bool copy(Register *pdst, Register *psrc);
+
+    /* returns items list*/
+    QStringList items();
 
     //VREGS
     /* vrtual reg struct*/
@@ -235,61 +320,89 @@ public:
     };
     /* append virtual reg */
     bool appendVirtual(const QString &name, const QString &descr,Virtual *pvreg);
-    QStringList items();
 
     /* encodes to 21 bit Hamming */
     bool encodeMeToHamming(bool secded = false);
+
     /* decodes from Hamming 21bit to 16bit*/
     bool decodeMeFromHamming(bool secded =false);
+
     /* scales bit array*/
     static QByteArray scaleBitArray(const QByteArray &data_in, qint32 factor);
+
     /* scales byte array by bits*/
     static QByteArray scaleByteArray(const QByteArray &data_in, qint32 factor);
-    /* converts byte array tp bit array */
+
+    /* converts byte array to bit array */
     static QByteArray convertByteArrayToBitArray(const QByteArray &data_in, qint32 size_in_bits, BitOrder bitorder = LSB);
+
     /* converts bit array to byte array */
     static QByteArray convertBitArrayToByteArray(const QByteArray &data_in, BitOrder bitorder = LSB, bool contiguously = false);    
 
+    /* calculates CRC for register.
+    If need to define a range use Sub reg*/
     quint32 crc(int bits, quint32 seed, quint32 poly, bool padding=true, QString *ptext=0);
 
     QStringList virtualList() {return m_vregs.keys(); }
     Register::Virtual *virtualItem(const QString &name) {return m_vregs[name];}
+
     /*[extra parameter]*/
-    /* returns name of bit */
+    /* returns register extra value as string*/
     QString extra(const QString &name);
+
+    /* returns extra value as integer*/
     unsigned int extraAsUInt(const QString &name,bool *ok=0);
 
-    /* sets name of bit */
+    /* sets extra value*/
     void setExtra(const QString &name,const QString &value);
+
+    /* returns extras list*/
     QStringList extras() const;
+
+    /* apply current values from some extra value*/
     void applyValueFromExtra(const QString &extra_name);
+
     /**/
-    static const char TAG_PURENAME[];
-    static const char TAG_NAME[];
-    static const char TAG_VALUE[];
-    static const char TAG_VALUE_HEX[];
-    static const char TAG_GROUP[];
-    static const char TAG_BITN[];
-    static const char TAG_DESCR[];
-    static const char TAG_EXTRAS[];
-    static const char TAG_READONLY[];
+    static const char *tag_purename;
+    static const char *tag_name;
+    static const char *tag_value;
+    static const char *tag_value_hex;
+    static const char *tag_group;
+    static const char *tag_bitn;
+    static const char *tag_descr;
+    static const char *tag_extras;
+    static const char *tag_readonly;
 
+    /**/
     void bind(QObject *pobj, const char*Set, const char *Get);
-    typedef enum {UpdateAlways,UpdateOnChange} UpdatePolicy;
-    void setUpdatePolicy(UpdatePolicy upd_pol);
-    void setParentRegister(Register *preg) ;
-    UpdatePolicy updatePolicy() const ;
+    /* update policies*/
+    typedef enum {
+        UpdateNever,
+        UpdateAlways,
+        UpdateOnChange} UpdatePolicy;
 
-    /* set as sub register */
+    /* set update policy*/
+    void setUpdatePolicy(UpdatePolicy upd_pol);
+    /* save parent register pointer*/
+    void setParentRegister(Register *preg) ;
+
+    /* set this register as sub-register */
     void setSub(bool on);
 
 signals:
-
+    /* signal register is removed*/
     void removed();
+    /* signal when register content is changed*/
     void changed();
+
     void signal_updateSet(const QString &regname);
     void signal_updateGet(const QString &regname);
+
+    /* register generates warning message.
+     * Usually on build or access of wrong items*/
     void signal_Warning(const QString &);
+
+    /* register generates error message*/
     void signal_Error(const QString &);
 
 #define __SET(name) do{\
@@ -303,38 +416,66 @@ signals:
     }while(0);
 
 protected:
+    /* create temporary register when is not*/
     void makeTemporary();
-    void addTemporary(Bit *pbit);
-    void clearTemporary();
-    void moveOffset(int index);
 
-    /* virtual regs map*/
+    /* add custom temporary register*/
+    void addTemporary(Bit *pbit);
+
+    /* clear temporary register.
+     * Not delete */
+    void clearTemporary();
+
+    /* changes current offset.
+     *  Used in register build*/
+    void moveOffset(unsigned int index);
+
+    /* virtual register map*/
     QMap<QString,Virtual*> m_vregs;
+
+    /* items list is generated when build*/
     QStringList m_items;
 
+    /* options in constructor*/
     quint32 m_options;
-    Register *mp_parent;
+
+    /* pointer to parent register.
+     * Used when this instance is sub registr*/
+    Register *mp_parent;    
+
+    /* pointer to temporary register.
+     * Usually sub register*/
     Register *mp_temporary;
+
+    /* current bit offset. used for register build */
     int m_offset;
-    /* variable is sub register*/
+
+    /* variable is sub register. register is a subset
+     * of pointers to the bits which is owned by another register*/
     bool m_isSub;
-    /* read only */
+
+    /* read only - register is readonly*/
     bool m_readOnly;
-    /* */    
+
+    /* update policy tells when gnerate changed signal*/
     UpdatePolicy m_update_policy;
-    /**/
+
+    /* setup data backup for rebuild*/
     QString m_setup_backup;
+
     /* register name*/
     QString m_name;
+
     /* bits list */
     QList<Bit *> m_chain;
+
+    /* list with extras */
     QHash <QString, QString> m_extra;
 
     /* finds maximum group id in chain*/
     qint32 findMaxGroupId();
 
-    quint32 m_adr;
-    quint32 m_page;
+    void cond_update(bool changed);
 
 };
 
