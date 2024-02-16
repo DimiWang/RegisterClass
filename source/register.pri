@@ -2,14 +2,15 @@
 INCLUDEPATH += $$PWD
 
 HEADERS +=\
-    $$PWD/register.h \
-    $$PWD/bitfieldparser.h \
     $$PWD/bit.h \
+    $$PWD/bitfield.h \
+    $$PWD/bitset.h \
+    $$PWD/register.h \
     $$PWD/hamming.h
 
 SOURCES +=\
+    $$PWD/bitfield.cpp \
+    $$PWD/bitset.cpp \
     $$PWD/register.cpp \
-    $$PWD/bitfieldparser.cpp \
-    $$PWD/bit.cpp \
     $$PWD/hamming.cpp
 
