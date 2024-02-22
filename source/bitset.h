@@ -5,6 +5,8 @@
 #include <QList>
 #include "bit.h"
 
+class BitSet;
+
 class BitSet: public QList<Bit*>
 {
 
@@ -13,7 +15,7 @@ public:
     /* bit LSB(lower) or MSB(higher) */
     typedef enum { MSB, LSB ,MSB8 } BitOrder;
 
-    BitSet(const QString &name=QString(), int size=-1, bool owner = false);
+    BitSet(const QString &name=QString(), int size=-1, bool owner = true);
 
     BitSet(BitSet &bitset);
 
@@ -45,7 +47,7 @@ public:
     quint32 value(qint32 from, qint32 to, bool *p_ok=0);
 
     /* gets bit value by number */
-    bool bitValue(qint32 bitn, bool *p_ok=0);
+    bool bitValue(qint32 index, bool *p_ok=0);
 
     /* sets value max 32bits */
     void setValue(const quint32 value);
@@ -145,17 +147,12 @@ public:
     /* converts bit array to byte array */
     static QByteArray convertBitArrayToByteArray(const QByteArray &data_in, BitOrder bitorder = LSB, bool contiguously = false);
 
-
-    /* encodes to 21 bit Hamming */
-    bool encodeMeToHamming(bool secded = false);
-
-    /* decodes from Hamming 21bit to 16bit*/
-    bool decodeMeFromHamming(bool secded =false);
-
-    virtual void copy(BitSet &bit_set);
+    void copy(BitSet &bit_set);
     virtual bool isSame(BitSet *preg);
 
 protected:
+    /**/
+    Bit *bitAt(int index);
     bool isBitsOwner() const {return m_bits_owner;}
     void setBitsOwner(bool is_owner) {m_bits_owner = is_owner;}
 

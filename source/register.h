@@ -23,7 +23,7 @@ class Register;
 #include <QDebug>
 #include "bitfield.h"
 #include "bitset.h"
-#include "hamming.h"
+
 
 //format [MSB...LSB] Example: "0001" ,"1011"
 //              in example 1 and 11 decimal
@@ -52,6 +52,7 @@ public:
         AbsoluteRange=2,
         SaveInitScript=4,
         CaseSensitive =8,/* not implemented*/
+        SubRegister = 0x10
     };
 
     /* update policies*/
@@ -61,13 +62,7 @@ public:
         UpdateOnChange} UpdatePolicy;
 
     /* zero constructor*/
-    explicit  Register();
-
-    /* bit list in format */
-    Register(const QString &init_script, const QString  &name = QString());
-
-    /* makes register with size and zero bit names */
-    Register(qint32 bit_count, const QString  &name = QString(), quint32 options= AllowSameName|SaveInitScript);
+    explicit  Register(const QString  &name = QString(), quint32 options =AllowSameName, const QString &init_script = QString());
 
     /* copy constructor*/
     Register(Register &reg);
@@ -75,51 +70,40 @@ public:
     virtual ~Register();
 
     void clear();
+    bool loadJsonData(const QByteArray &json_data);
 
     /* copies register src to dst .name not copy. success when dst.size == 0 and register dst same as src*/
-    virtual void copy(Register &src);
+    void copy(Register &src);
 
     bool blockSignals(bool b);
 
     /* make setup -build register*/
     bool makeSetup(const QString &init_script);
 
-
-    /* parsing methods */
-    bool parseBit_Method1(const QString &field, int index);
-    bool parseBit_Method2(const QString &field, int index);
-
     /* finds bit number by name*/
     BitField* field(const QString &name);
     BitField* field(int index);
+
 
     /* remove all bits by name*/
     void removeField(const QString &fieldname);
 
     /* adds single bit with name*/
     bool addField(const QString &field, qint32 put_to = -1);
-    bool addField(BitField *bitfield);
+    void addField(const BitField &bitfield);
+    void addField(BitField*bitfield);
 
     /* adds registers as string list*/
     bool addFieldList(const QStringList &field_list, qint32 put_to = -1);
 
     /* sets value to field (! Field is a bit or bit band )*/
-    bool setValue(const QString &field, quint32 value);
-
-    bool setBitValue(qint32 bitn, bool value);
-
+    bool setFieldValue(const QString &field, quint32 value);
 
     /* gets value from field*/
-    quint32 value(const QString &field);
+    quint32 fieldValue(const QString &field);
 
-
-    /* returns bit pointer by name*/
-    Bit *bit(const QString &bit_name);
-
-    /*if bit presents in register*/
+    /*if field presents in register*/
     bool contains(const QString &name);
-
-
 
 
     /* operator [] by field name*/
@@ -149,10 +133,8 @@ public:
     */
 
     /* fill in preg with bits as sub register*/
-    void makeSubRegister(Register *preg, qint32 group_id);
+    static Register* makeSubRegister(Register *parent, const QString &name= QString());
 
-    /* fill in preg with bits as sub register*/
-    void makeSubRegister(Register *preg, qint32 from, qint32 to);
 
      /* makes sub register and returns pointer to temporary.
       *  from ~ to (including from and to)*/
@@ -175,7 +157,7 @@ public:
     Register * sub(const QString &extra_name, const QStringList &extra_values);
 
     /* is subregister */
-    bool isSub() const {return m_is_sub;};
+    bool isSub() const {return m_options&SubRegister;}
 
     /* checks if regsiter is same has same size and same bit names*/
     virtual bool isSame(Register *preg);
@@ -184,26 +166,6 @@ public:
     /* returns items list*/
     QStringList fieldsList();
     int fieldsCount()const ;
-
-    //VREGS
-    /* vrtual reg struct*/
-    struct Virtual
-     {
-        Register *preg;
-        quint32 val;
-        bool readonly;
-        QString descr;
-        Virtual(){val=0;preg=0;readonly=false;}
-        virtual ~Virtual(){}
-        virtual bool set(quint32 val)=0;
-        virtual quint32 get(){return val;}
-    };
-    /* append virtual reg */
-    bool appendVirtual(const QString &name, const QString &descr,Virtual *pvreg);
-
-
-    QStringList virtualList() {return m_vregs.keys(); }
-    Register::Virtual *virtualItem(const QString &name) {return m_vregs[name];}
 
     /*[extra parameter]*/
     /* returns register extra value as string*/
@@ -227,18 +189,15 @@ public:
     static const char *tag_value;
     static const char *tag_value_hex;
     static const char *tag_group;
-    static const char *tag_bitn;
+    static const char *tag_offset;
     static const char *tag_descr;
     static const char *tag_extras;
     static const char *tag_readonly;
 
     /* converts to string format bit=1 */
-    const QString toString(const QString &format="@name=@value;", bool grouped= true, bool include_virtual=false, bool skip_empty=true);
+    const QString toString(const QString &format="@name=@value;", bool skip_empty=true);
     bool fromString(const QString &text,const char ln_separator=';', const char eq_separator='=');
 
-
-//    /**/
-//    void bind(QObject *pobj, const char*Set, const char *Get);
 
     /* set update policy*/
     void setUpdatePolicy(UpdatePolicy upd_pol) {m_update_policy = upd_pol;}
@@ -276,12 +235,11 @@ signals:
     else signal_updateGet(name);\
     }while(0);
 
+private:
+    BitField* findFieldByBit(Bit*pbit);
+
 protected:
-    void buildReg();
-    /**/
-    void setSub(bool is_sub) {m_is_sub = is_sub;}
-    /**/
-    const Bit *bitAt(int index);
+
 
     /* create temporary register when is not*/
     void makeTemporary();
@@ -297,13 +255,7 @@ protected:
      *  Used in register build*/
     void moveOffset(unsigned int index);
 
-
     void cond_update(bool changed);
-
-    bool m_is_sub;
-
-    /* virtual register map*/
-    QMap<QString,Virtual*> m_vregs;
 
     /* options in constructor*/
     quint32 m_options;
@@ -331,6 +283,7 @@ protected:
     /* list with extras */
     QHash <QString, QVariant> m_extra;
 
+    void replaceTagsInLine(QString *line, QMap<QString, QString> &dict);
 };
 
 ////class SubRegister:public Register{

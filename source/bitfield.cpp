@@ -18,8 +18,8 @@
  * @description:
  * @return: (  )
  ****************************************************************************/
-BitField::BitField(const QString &name, int size, bool bit_owner ):
-    BitSet(name, size, bit_owner)
+BitField::BitField(const QString &name, int size ):
+    BitSet(name, size, false)
 {    
 
 }
@@ -58,7 +58,7 @@ void BitField::setExtras(const QHash<QString, QVariant> &extras)
 BitField * BitField::makeField(const QString &str,
                                bool value,
                                const QString &description,
-                               bool readonly,
+                               bool constant,
                                const QHash<QString, QVariant> &extras )
 {
     BitField *field=0;
@@ -76,7 +76,7 @@ BitField * BitField::makeField(const QString &str,
         {
             field = new BitField(parser.captured.name);
             field->setDescription(description);
-            field->setConstant(readonly);
+            field->setConstant(constant);
             field->setExtras(extras);
 
             // inflate with bits
@@ -108,17 +108,18 @@ QStringList BitField::extras() const
 
 
 bool BitField::Parser::load(const char *pfield)
-{
-    enum Area{ NAME = 0, RANGEA , RANGEB, RANGE_NAME, VALUE};
+{    
     Area next_area = NAME;
-    Area area=NAME;
+    captured.area = NAME;
+    captured.len = 0;
     clear();
     has_range = 0;
     has_value = false;
     by_name = false;
     const char *p_in = pfield;
     char *p_cap = captured.name;
-    while(*p_in)
+    bool stop = false;
+    while(*p_in && !stop)
     {
         const char c = *p_in++;
         switch (c)
@@ -145,14 +146,20 @@ bool BitField::Parser::load(const char *pfield)
             break;
 
         default :
-            if(p_cap)
-                *p_cap++ = c;
+            if(p_cap){
+                if(checkAreaCorrect(c)){
+                    *p_cap++ = c;
+                    captured.len ++;
+                }
+                else stop = true;
+            }
             break;
         }
 
-        if (next_area >= area)
+        if (next_area >= captured.area)
         {
-            area = next_area;
+            captured.len = 0;
+            captured.area = next_area;
         }
         else
         {
@@ -221,4 +228,31 @@ BitField::Parser::Parser()
     value_readonly = false;
     by_name = false;
     ok = false;
+}
+
+bool BitField::Parser::checkAreaCorrect(const char c)
+{
+    bool ok = false;
+    switch(captured.area){
+    case NAME:
+        ok = captured.len<sizeof(captured.name)
+              && ((c>='a' && c<='z')|| (c>='A' && c<='Z') || c=='_' || (c>='0' && c<='9') );
+        break;
+    case RANGEA:
+        ok = captured.len<sizeof(captured.range_a)
+              && ((c>='a' && c<='z')||(c>='A' && c<='Z') || c=='_' || (c>='0' && c<='9') );
+        break;
+    case RANGEB:
+        ok = captured.len<sizeof(captured.range_b)
+              && c>='0' &&c<='9';
+        break;
+    case VALUE:
+        ok = captured.len<sizeof(captured.value)
+              && (c == '$' // constant
+                  || (c >= '0' && c <= '9') //deimal
+                  || c == 'x' || c == 'X' || (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') // 0x00 hex
+                  || c == 'b' ); // binary
+        break;
+    }
+    return ok;
 }

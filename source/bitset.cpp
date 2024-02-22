@@ -1,10 +1,9 @@
 #include "bitset.h"
-
 BitSet::BitSet(const QString &name, int size, bool owner):
     QList<Bit*>()
+   ,m_bits_owner(owner)
 {
     m_name = name;
-    m_bits_owner = owner;
     m_constant = false;
     if(size != -1)
         resize(size);
@@ -12,7 +11,7 @@ BitSet::BitSet(const QString &name, int size, bool owner):
 
 BitSet::BitSet(BitSet &bitset)
     :m_bits_owner(1)
-{
+{    
     setName(bitset.name());
     copy(bitset);
 }
@@ -86,6 +85,7 @@ void BitSet::clear()
             delete takeAt(0);
         }
     }
+    QList::clear();
 }
 
 quint32 BitSet::value()
@@ -363,7 +363,7 @@ BitSet &BitSet::operator |= (BitSet &reg)
     {
         for (qint32 i = 0; i < size(); i++)
         {
-            bool result = at(i)->value | reg.at(i)->value;
+            bool result = at(i)->value || reg.at(i)->value;
             at(i)->value = result;
         }
     }
@@ -506,7 +506,7 @@ BitSet &BitSet::operator &= (BitSet &reg)
     {
         for (qint32 i = 0; i < size(); i++)
         {
-            bool result = at(i)->value & reg.at(i)->value;
+            bool result = at(i)->value && reg.at(i)->value;
             at(i)->value = result;
         }
     }
@@ -534,11 +534,11 @@ BitSet &BitSet::operator &=(quint32 val)
  * @description: this function gets bit
  * @return: ( bool ) - bit value
  ****************************************************************************/
-bool BitSet::bitValue(qint32 bitn, bool *p_ok)
+bool BitSet::bitValue(qint32 index, bool *p_ok)
 {
-    if( indexValid(bitn) ){
+    if( indexValid(index) ){
         if(p_ok) *p_ok = true;
-        return (bool)at(bitn)->value;
+        return (bool)at(index)->value;
     }
     if(p_ok) *p_ok =false;
     return false;
@@ -804,8 +804,7 @@ quint32 BitSet::fromBitStringToUint(const QByteArray & ba)
  * @return: ( void )
  ****************************************************************************/
 void BitSet::fromBitString(const QByteArray &bytearray, BitOrder bitorder)
-{
-    bool value_changed = false;
+{    
     for (qint32 i = 0; i < bytearray.size(); i++)
     {
         qint32 index;
@@ -816,7 +815,7 @@ void BitSet::fromBitString(const QByteArray &bytearray, BitOrder bitorder)
         else index = i;
         const bool new_value = bytearray[i] != '0';
         if(bitValue(index) != new_value){
-            value_changed = true;
+           //--- m_value_changed = true;
         }
         setBitValue( index, new_value);
     }
@@ -832,7 +831,8 @@ void BitSet::fromBitString(const QByteArray &bytearray, BitOrder bitorder)
  * @return: ( quint32 )
  ****************************************************************************/
 QByteArray BitSet::convertByteArrayToBitArray(const QByteArray &data_in
-                                              , qint32 size_in_bits,BitOrder bitorder )
+                                                    ,qint32 size_in_bits
+                                                    ,BitOrder bitorder )
 {
     QByteArray result;
     result.resize(size_in_bits);
@@ -893,13 +893,25 @@ QByteArray BitSet::convertBitArrayToByteArray(const QByteArray &data_in, BitOrde
 }
 
 void BitSet::copy(BitSet &bitset)
-{
-    if(isBitsOwner())
+{    
+    if(isBitsOwner()){
         resize(bitset.size());
-
-    for(int i=0;i<size();i++){
-        if(bitset.size() <= i) break;
-        at(i)->value = bitset.at(i)->value;
+        //copy values
+        for(int i=0;i<size();i++){
+            at(i)->value = bitset.at(i)->value;
+        }
+    }
+    else {
+        clear();
+        //add bits fromanother bitset
+        for(int i=0;i<bitset.size();i++){
+            append(bitset.bitAt(i));
+        }
     }
 }
 
+
+Bit *BitSet::bitAt(int index)
+{
+    return at(index);
+}

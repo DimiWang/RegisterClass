@@ -27,7 +27,7 @@
 class BitField: public BitSet
 {
 public:
-    BitField(const QString &name=QString(), int size=-1, bool bit_owner= true);
+    BitField(const QString &name=QString(), int size=-1);
 
     ~BitField();
 
@@ -49,13 +49,15 @@ public:
     void setExtras(const QHash <QString, QVariant> &extras);
 
     struct Parser{
+        typedef enum { NAME = 0, RANGEA , RANGEB, VALUE}Area;
         struct Captured{
             char name[100];
             char range_a[100];
             char range_b[10];
             char value[10];
-        }captured;
-
+            unsigned int len;
+            Area area;
+        }captured;        
         int has_range ;
         bool by_name;
         bool has_value;
@@ -65,13 +67,14 @@ public:
         qint32 range_msb;
         qint32 value_u32;
         Parser();
+        bool checkAreaCorrect(const char c);
         bool load(const char*);
         void clear();
     };
     static BitField* makeField(const QString &str,
                                bool value = false,
                                const QString &description= QString(),
-                               bool readonly = false,
+                               bool constant = false,
                                const QHash<QString, QVariant> &extras= QHash<QString,QVariant>());
 protected:
 
