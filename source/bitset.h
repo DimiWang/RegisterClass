@@ -1,172 +1,168 @@
 #ifndef BITSET_H
 #define BITSET_H
 
-#include <QList>
 #include <QString>
-
+#include <QList>
 #include "bit.h"
 
 class BitSet;
 
-class BitSet : public QList<Bit *> {
- public:
-  /* bit LSB(lower) or MSB(higher) */
-  typedef enum { MSB, LSB, MSB8 } BitOrder;
+class BitSet: public QList<Bit*>
+{
 
-  BitSet(const QString &name = QString(), int size = -1, bool owner = true);
+public:
 
-  BitSet(BitSet &bitset);
+    /* bit LSB(lower) or MSB(higher) */
+    typedef enum { MSB, LSB ,MSB8 } BitOrder;
 
-  virtual ~BitSet();
+    BitSet(const QString &name=QString(), int size=-1, bool owner = true);
 
-  /* returns name of bit */
-  const QString &name() const;
+    BitSet(BitSet &bitset);
 
-  /* sets name of bit */
-  void setName(const QString &name);
+    virtual ~BitSet();
 
-  /* clears chain (all bits) */
-  void clear(void);
+    /* returns name of bit */
+    const QString &name() const;
 
-  /* sets new size of register.
-   * adds bits*/
-  void resize(qint32 size);
+    /* sets name of bit */
+    void setName(const QString &name);
 
-  /* sets bit as readOnly */
-  void setConstant(const bool value) { m_constant = value; }
+    /* clears chain (all bits) */
+    void clear(void);
 
-  /* bit is readOnly */
-  bool constant() const { return m_constant; }
+    /* sets new size of register.
+     * adds bits*/
+    void resize(qint32 size);
 
-  /* gets value max 32bits */
-  quint32 value();
+    /* sets bit as readOnly */
+    void setConstant(const bool value) {m_constant = value;}
 
-  /* gets value from field [from:to]*/
-  quint32 value(qint32 from, qint32 to, bool *p_ok = 0);
+    /* bit is readOnly */
+    bool constant() const {return m_constant;}
 
-  /* gets bit value by number */
-  bool bitValue(qint32 index, bool *p_ok = 0);
+    /* gets value max 32bits */
+    quint32 value();
 
-  /* sets value max 32bits */
-  void setValue(const quint32 value);
+    /* gets value from field [from:to]*/
+    quint32 value(qint32 from, qint32 to, bool *p_ok=0);
 
-  /* inverts field */
-  void invert(void);
+    /* gets bit value by number */
+    bool bitValue(qint32 index, bool *p_ok=0);
 
-  /* sets value to field (! Field is a bit or bit band )*/
-  bool setValue(qint32 from, qint32 to, quint32 value);
+    /* sets value max 32bits */
+    void setValue(const quint32 value);
 
-  /* sets single bit value by bit number  */
-  bool setBitValue(qint32 bitn, bool value);
+    /* inverts field */
+    void invert(void);
 
-  bool indexValid(int index);
-  /* rotate register to direction "MSB->LSB - right"
-   *                              "LSB->MSB - left */
-  void rotateRight(int count = 1, bool fill = false);
-  void rotateLeft(int count = 1, bool fill = false);
+    /* sets value to field (! Field is a bit or bit band )*/
+    bool setValue(qint32 from, qint32 to, quint32 value);
 
-  /*roll register LSB <>MSB*/
-  void roll();
+    /* sets single bit value by bit number  */
+    bool setBitValue(qint32 bitn, bool value);
 
-  /* fills bits with value*/
-  void fill(bool value, qint32 start = 0, qint32 count = -1);
+    bool indexValid(int index);
+    /* rotate register to direction "MSB->LSB - right"
+     *                              "LSB->MSB - left */
+    void rotateRight(int count=1, bool fill=false);
+    void rotateLeft(int count=1, bool fill=false);
 
-  /* converts to int, bool, unsigned int*/
-  operator int();
-  operator bool();
-  operator unsigned int();
+    /*roll register LSB <>MSB*/
+    void roll();
 
-  /* operator = * doesnt keep names */
-  BitSet &operator=(BitSet &bitset);
-  BitSet &operator=(quint32 val);
+    /* fills bits with value*/
+    void fill(bool value, qint32 start = 0, qint32 count = -1);
 
-  /* operator !*/
-  BitSet operator!();
+    /* converts to int, bool, unsigned int*/
+    operator int();
+    operator bool();
+    operator unsigned int();
 
-  /* operator ~*/
-  BitSet operator~();
+    /* operator = * doesnt keep names */
+    BitSet &operator = (BitSet &bitset);
+    BitSet &operator = (quint32 val);
 
-  /* AND operator */
-  BitSet &operator&=(BitSet &reg);
-  BitSet &operator&=(quint32 val);
+    /* operator !*/
+    BitSet operator ! ();
 
-  /* XOR operator */
-  BitSet &operator^=(BitSet &reg);
-  BitSet &operator^=(quint32 val);
+    /* operator ~*/
+    BitSet operator ~ ();
 
-  /* OR operator*/
-  BitSet &operator|=(BitSet &reg);
-  BitSet &operator|=(quint32 val);
+    /* AND operator */
+    BitSet &operator &= (BitSet &reg);
+    BitSet &operator &= (quint32 val);
 
-  /* equal operator*/
-  bool operator==(BitSet &reg);
-  bool operator==(quint32 reg);
+    /* XOR operator */
+    BitSet &operator ^= (BitSet &reg);
+    BitSet &operator ^= (quint32 val);
 
-  /* not equal operator */
-  bool operator!=(BitSet &reg);
-  bool operator!=(quint32 reg);
+    /* OR operator*/
+    BitSet &operator |= (BitSet &reg);
+    BitSet &operator |= (quint32 val);
 
-  bool operator[](int index);
+    /* equal operator*/
+    bool operator == ( BitSet &reg);
+    bool operator == ( quint32 reg);
 
-  /* joins other register */
-  void join(BitSet &reg);
-  void join(BitSet *preg);
+    /* not equal operator */
+    bool operator != ( BitSet &reg);
+    bool operator != ( quint32 reg);
 
-  /* converts to byte array lsb first*/
-  QByteArray toByteArray(BitOrder bitorder = LSB, bool contiguously = false);
+    bool operator [] ( int index);
 
-  /* converts to hexademical string*/
-  QString toHex(BitOrder bitorder = LSB, bool contiguously = false);
+    /* joins other register */
+    void join(BitSet &reg);
+    void join(BitSet *preg);
 
-  /* loads from byte array */
-  bool fromByteArray(const QByteArray &bytearray, qint32 scanchain_length = -1,
-                     BitOrder bitorder = LSB, bool contiguously = false);
+    /* converts to byte array lsb first*/
+    QByteArray toByteArray(BitOrder bitorder = LSB, bool contiguously=false);
 
-  /* from hexademical representation */
-  bool fromHex(const QString &hex, qint32 length_bits = -1,
-               BitOrder bitorder = LSB, bool contiguously = false);
+    /* converts to hexademical string*/
+    QString toHex(BitOrder bitorder = LSB, bool contiguously=false);
 
-  /* converts to bit string format:101010111 */
-  QByteArray toBitString(BitOrder bitorder = LSB);
+    /* loads from byte array */
+    bool fromByteArray(const QByteArray &bytearray, qint32 scanchain_length=-1,BitOrder bitorder = LSB, bool contiguously=false);
 
-  /* converts to unsigned int 32bit.rest(>32 bit) is ignored*/
-  quint32 toUInt(BitOrder bitorder = LSB);
+    /* from hexademical representation */
+    bool fromHex(const QString &hex, qint32 length_bits=-1, BitOrder bitorder = LSB, bool contiguously=false);
 
-  /* set register as unsigned int 32bit.rest(>32 bit) is ignored*/
-  void setUInt(quint32 value, BitOrder bitorder = LSB);
+    /* converts to bit string format:101010111 */
+    QByteArray toBitString(BitOrder bitorder = LSB);
 
-  /* loads from Bit String */
-  void fromBitString(const QByteArray &bytearray, BitOrder bitorder = LSB);
+    /* converts to unsigned int 32bit.rest(>32 bit) is ignored*/
+    quint32 toUInt(BitOrder bitorder = LSB);
 
-  /* Converts from string to integer. Example: from '1111 0000' format to 0xF0
-   */
-  static quint32 fromBitStringToUint(const QByteArray &ba);
+    /* set register as unsigned int 32bit.rest(>32 bit) is ignored*/
+    void setUInt(quint32 value,BitOrder bitorder= LSB);
 
-  /* converts byte array to bit array */
-  static QByteArray convertByteArrayToBitArray(const QByteArray &data_in,
-                                               qint32 size_in_bits,
-                                               BitOrder bitorder = LSB);
+    /* loads from Bit String */
+    void fromBitString(const QByteArray &bytearray, BitOrder bitorder = LSB);
 
-  /* converts bit array to byte array */
-  static QByteArray convertBitArrayToByteArray(const QByteArray &data_in,
-                                               BitOrder bitorder = LSB,
-                                               bool contiguously = false);
+    /* Converts from string to integer. Example: from '1111 0000' format to 0xF0 */
+    static quint32 fromBitStringToUint(const QByteArray & ba);
 
-  void copy(BitSet &bit_set);
-  virtual bool isSame(BitSet *preg);
+    /* converts byte array to bit array */
+    static QByteArray convertByteArrayToBitArray(const QByteArray &data_in, qint32 size_in_bits, BitOrder bitorder = LSB);
 
- protected:
-  /**/
-  Bit *bitAt(int index);
-  bool isBitsOwner() const { return m_bits_owner; }
-  void setBitsOwner(bool is_owner) { m_bits_owner = is_owner; }
+    /* converts bit array to byte array */
+    static QByteArray convertBitArrayToByteArray(const QByteArray &data_in, BitOrder bitorder = LSB, bool contiguously = false);
 
- private:
-  bool m_constant;
+    void copy(BitSet &bit_set);
+    virtual bool isSame(BitSet *preg);
 
-  bool m_bits_owner;
-  /* bit name */
-  QString m_name;
+protected:
+    /**/
+    Bit *bitAt(int index);
+    /* check if bits owner. this can be changed only in constructor -before bits adding*/
+    bool isBitsOwner() const {return m_bits_owner;}
+
+private:
+    bool m_constant;
+
+    bool m_bits_owner;
+    /* bit name */
+    QString m_name;
+
 };
 
-#endif  // BITSET_H
+#endif // BITSET_H
