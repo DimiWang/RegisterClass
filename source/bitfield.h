@@ -11,8 +11,9 @@
 
 #include <QByteArray>
 #include <QHash>
-#include <QVariant>
 #include <QStringList>
+#include <QVariant>
+
 #include "bitset.h"
 
 /****************************************************************************
@@ -20,88 +21,73 @@
  * Bit
  ****************************************************************************/
 
+class BitField : public BitSet {
+ public:
+  BitField(const QString &name = QString(), int size = -1);
 
+  ~BitField();
 
+  /* sets description */
+  void setDescription(const QString &descr);
 
+  /* description string */
+  const QString &description() const;
 
-class BitField: public BitSet
-{
-public:
-    BitField(const QString &name=QString(), int size=-1);
+  /* returns name of bit */
+  QVariant extra(const QString &name);
 
-    ~BitField();
+  /* list of extras*/
+  QStringList extras() const;
 
-    /* sets description */
-    void setDescription(const QString &descr);
+  /* sets name of bit */
+  void setExtra(const QString &name, const QVariant &value);
 
-    /* description string */
-    const QString &description() const;
+  void setExtras(const QHash<QString, QVariant> &extras);
 
-    /* returns name of bit */
-    QVariant extra(const QString &name);
+  struct Parser {
+    typedef enum { NAME = 0, RANGEA, RANGEB, VALUE } Area;
+    struct Captured {
+      char name[100];
+      char range_a[100];
+      char range_b[10];
+      char value[10];
+      unsigned int len;
+      Area area;
+    } captured;
+    int has_range;
+    bool by_name;
+    bool has_value;
+    bool value_readonly;
+    bool ok;
+    qint32 range_lsb;
+    qint32 range_msb;
+    qint32 value_u32;
+    Parser(const char *p = 0);
+    bool checkAreaCorrect(const char c);
+    bool load(const char *);
+    void clear();
+  };
+  static BitField *makeField(const QString &str, Parser *parser);
 
-    /* list of extras*/
-    QStringList extras() const;
+ protected:
+  /* sets group id */
+  void setId(const qint32 group_id);
+  /* value is constant*/
+  qint32 m_id;
+  QHash<QString, QVariant> m_extra;
 
-    /* sets name of bit */
-    void setExtra(const QString &name,const QVariant &value);
+  /* bit description*/
+  QString m_description;
 
-    void setExtras(const QHash <QString, QVariant> &extras);
-
-    struct Parser{
-        typedef enum { NAME = 0, RANGEA , RANGEB, VALUE}Area;
-        struct Captured{
-            char name[100];
-            char range_a[100];
-            char range_b[10];
-            char value[10];
-            unsigned int len;
-            Area area;
-        }captured;        
-        int has_range ;
-        bool by_name;
-        bool has_value;
-        bool value_readonly;
-        bool ok;
-        qint32 range_lsb;
-        qint32 range_msb;
-        qint32 value_u32;
-        Parser();
-        bool checkAreaCorrect(const char c);
-        bool load(const char*);
-        void clear();
-    };
-    static BitField* makeField(const QString &str,
-                               bool value = false,
-                               const QString &description= QString(),
-                               bool constant = false,
-                               const QHash<QString, QVariant> &extras= QHash<QString,QVariant>());
-protected:
-
-    /* sets group id */
-    void setId(const qint32 group_id);
-    /* value is constant*/
-    qint32 m_id;
-    QHash <QString, QVariant> m_extra;
-
-    /* bit description*/
-    QString m_description;
-
-private:        
-
-
-
+ private:
 };
 
 //#include <QDebug>
-//inline QDebug operator<< (QDebug d, const Bit &bit)
+// inline QDebug operator<< (QDebug d, const Bit &bit)
 //{
-//    d << QString("Bit(name=%1,value=%2)").arg(QString(bit.name())).arg(bit.value());
+//    d <<
+//    QString("Bit(name=%1,value=%2)").arg(QString(bit.name())).arg(bit.value());
 //    return d;
 //}
 
-
-
-
-
-#endif // BITFIELD_H
+#endif  // BITFIELD_H

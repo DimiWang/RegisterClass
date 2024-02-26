@@ -8,7 +8,7 @@
 #include <QList>
 #include "bitfield.h"
 #include <QDebug>
-#define IS_ALPHA(C) ((C >= 'a' && C <= 'z') || (C>='A' && C<='Z'))
+
 
 /****************************************************************************
  * @function name: constructor
@@ -55,38 +55,34 @@ void BitField::setExtras(const QHash<QString, QVariant> &extras)
 }
 
 
-BitField * BitField::makeField(const QString &str,
-                               bool value,
-                               const QString &description,
-                               bool constant,
-                               const QHash<QString, QVariant> &extras )
+BitField * BitField::makeField(const QString &str, BitField::Parser *parser)
 {
     BitField *field=0;
-    BitField::Parser parser;
-    if(parser.load(str.toLatin1().constData())){
+    bool parser_ok =false;
+    if(parser == 0) {
+        parser = new BitField::Parser;
+        parser_ok =  parser->load(str.toLatin1().constData());
+    }else{
+        parser_ok = parser->ok;
+    }
 
-        int bit_count=0;
-
-        bit_count = (parser.range_lsb == parser.range_msb  && parser.range_msb  > 0) ?
-                    parser.range_msb  :
-                    (qMax(parser.range_msb ,parser.range_lsb) - qMin(parser.range_msb ,parser.range_lsb))
-                    + 1;
+    if(parser_ok){
+        int bit_count;
+        if(parser->has_range == 2)
+            bit_count = parser->range_msb - parser->range_lsb + 1;
+        else bit_count = parser->range_lsb;
 
         if(bit_count>0)
         {
-            field = new BitField(parser.captured.name);
-            field->setDescription(description);
-            field->setConstant(constant);
-            field->setExtras(extras);
+            field = new BitField(parser->captured.name);
 
             // inflate with bits
             while(bit_count--){                
-                field->append(new Bit(value));
+                field->append(new Bit(false));
             }
-            if(parser.has_value)
-                field->setValue(parser.value_u32);
+            if(parser->has_value)
+                field->setValue(parser->value_u32);
         }
-
     }
     return field;
 }
@@ -106,6 +102,14 @@ QStringList BitField::extras() const
     return m_extra.keys();
 }
 
+static quint32 StrToUl(const char *str){
+    quint32 result;
+    if(str[0] == '0' && str[1]=='x')
+        result = (quint32)strtol(&str[2],0,16);
+    else
+        result = (quint32)strtol(str,0,10);
+    return result;
+}
 
 bool BitField::Parser::load(const char *pfield)
 {    
@@ -171,13 +175,17 @@ bool BitField::Parser::load(const char *pfield)
     //Range
     range_lsb = 0;
     range_msb = 0;
-    by_name = IS_ALPHA(captured.range_a[0]);
+    const char c = captured.range_a[0];
+    by_name = ((c >= 'a' && c <= 'z') || (c>='A' && c<='Z'));
+
     if (!by_name  && captured.range_a[0] != '\0')
     {
         // "[A:B]"
         if(has_range == 2 && captured.range_b[0] != '\0'){
-            range_lsb = strtol(captured.range_a,0,10);
-            range_msb = strtol(captured.range_b,0,10);
+
+            range_lsb = StrToUl(captured.range_a);
+            range_msb = StrToUl(captured.range_b);
+
             if (range_lsb > range_msb)
             {
                 qint32 tmp = range_msb;
@@ -187,8 +195,9 @@ bool BitField::Parser::load(const char *pfield)
         }
         // "[A]"
         else
-        {
-            range_lsb = range_msb =  strtol(captured.range_a,0,10);
+        {            
+            range_lsb = StrToUl(captured.range_a);
+            range_msb = range_lsb;
         }
     }
     /// Value
@@ -201,13 +210,7 @@ bool BitField::Parser::load(const char *pfield)
             p++;
         }
 
-        if(p[0] == '0' && p[1] == 'x')
-        {
-            value_u32 = strtoul(&p[2],0,16);
-        }
-        else {
-            value_u32 =strtoul(&p[0],0,10);
-        }
+        value_u32 = StrToUl(p);
     }
     return true;
 }
@@ -218,7 +221,7 @@ void BitField::Parser::clear()
 }
 
 
-BitField::Parser::Parser()
+BitField::Parser::Parser(const char *p)
 {
     range_msb = 0;
     range_lsb = 0;
@@ -227,7 +230,9 @@ BitField::Parser::Parser()
     has_value = false;
     value_readonly = false;
     by_name = false;
-    ok = false;
+    if(p)
+        ok = load(p);
+    else ok = false;
 }
 
 bool BitField::Parser::checkAreaCorrect(const char c)
