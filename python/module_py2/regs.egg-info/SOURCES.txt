@@ -1,0 +1,11 @@
+bit.cpp
+bitfieldparser.cpp
+hamming.cpp
+register.cpp
+registercontainer.cpp
+regs.cpp
+setup.py
+regs.egg-info/PKG-INFO
+regs.egg-info/SOURCES.txt
+regs.egg-info/dependency_links.txt
+regs.egg-info/top_level.txt
