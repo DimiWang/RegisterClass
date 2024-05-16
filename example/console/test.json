@@ -1,0 +1,11 @@
+[
+{   "name":"field1[10]",
+    "value":"0x10"
+},
+{   "name":"field2[5]",
+    "value":15
+},
+{   "name":"bit1",
+    "value":true
+}
+]
