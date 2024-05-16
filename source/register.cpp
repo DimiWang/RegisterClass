@@ -1,4 +1,3 @@
-#if 1
 /**
  * @file:register.cpp   -
  * @description: this is class to maintain bits with names
@@ -18,25 +17,8 @@
 #include <QJsonParseError>
 #include <QJsonValue>
 
-const char *Register::tag_purename    = "@purename";
-const char *Register::tag_name     = "@name";
-const char *Register::tag_value    = "@value";
-const char *Register::tag_value_hex = "@value_hex";
-const char *Register::tag_offset     = "@offset";
-const char *Register::tag_descr    = "@descr";
-const char *Register::tag_extras    = "@extras";
-const char *Register::tag_readonly    = "@readonly";
 
 
-
-/****************************************************************************
- * @function name: constructor
- *
- * @param:
- *
- *  void
- * @description:
- ****************************************************************************/
 Register::Register(Register *parent, const QString &name, bool is_sub
                    , const QByteArray &init_json, quint32 load_options)
     : QObject()
@@ -55,11 +37,7 @@ Register::Register(Register *parent, const QString &name, bool is_sub
 }
 
 
-/****************************************************************************
- * copy constructor
- *     const Register &reg - register
- * @description: creates register with bits without names
- ****************************************************************************/
+
 Register::Register( Register &reg)
     : QObject()
     ,BitSet()
@@ -114,6 +92,122 @@ void Register::clear()
 
 }
 
+bool Register::parseJsonObjectAsField(const QJsonObject &field_obj, quint32 options){
+    QStringList available_keys = field_obj.keys();
+
+    QString field_tag;
+    //mandatory field
+    if(available_keys.contains("name")){
+        field_tag = "name";
+    }
+    else if(available_keys.contains("field")) {
+        field_tag = "field";
+    }else{
+        // not field
+        return false;
+    }
+    // start to create a field and give a name    
+    const QString field_name = field_obj[field_tag].toString();
+    available_keys.removeOne(field_tag);
+
+    if(available_keys.contains("offset")){
+        quint32 offset;
+
+        // offset is a string for hexademical (0x...)
+        if(field_obj["offset"].isString())
+        {
+            const QString offset_value = field_obj["offset"].toString();
+            if(offset_value.startsWith('B')){
+                offset = Register::strToUInt(offset_value.mid(1))*8;
+            }else
+                offset = Register::strToUInt(offset_value);
+        }
+        // offset is an integer value
+        else {
+            offset = (quint32)field_obj["offset"].toInt();
+        }
+
+        // offset should be always forward
+        if((quint32)size() < offset+1 ){
+            moveOffset(offset);
+
+        }else{
+            WARNING("Can't make offset");
+        }
+
+        // this key is processed remove it from list
+        available_keys.removeOne("offset");
+    }
+
+    BitField::Parser parser(field_name.toLatin1().constData());
+    BitField *f = 0;
+
+    const bool name_exist = contains( parser.name() );
+
+    // on AllowSame name when we add bits to existing
+    if( options &AllowSameName){
+        if(name_exist)
+            f = field(parser.name());
+        else
+            //first field when AllowSameName mode
+            f = BitField::makeField(field_name, &parser);
+    }
+
+    // always make a new field but rename if exist
+    else{
+        f = BitField::makeField(field_name, &parser);
+        // make another field with the same name
+        int i=0;
+        if(name_exist){
+            QString another_name = parser.name();
+            while(contains(another_name))  {
+                another_name = QString("%1_%2").arg(parser.name()).arg(i);
+                i++;
+            }
+            //rename
+            f->setName(another_name);
+        }
+    }
+
+
+
+    if(f != 0){
+        if(options &AbsoluteRange && parser.ranges() >0){
+            int lsb = parser.lsb() + m_offset;
+            if(size() < lsb+1 ){
+                resize(lsb);
+            }
+        }
+
+        if(options &Default1) f->fill(1);
+        if(options &Default0) f->fill(0);
+
+
+        while(available_keys.count()){
+            const QString key = available_keys.first();
+            if( key == "descr"){
+                f->setDescription(field_obj[key].toString());
+            }
+            else if(key == "value"){
+                if(field_obj[key].isString())
+                    f->setValue(Register::strToUInt(field_obj[key].toString()));
+                else
+                    f->setValue((quint32)field_obj[key].toInt());
+            }
+            else if(key == "const"){
+                f->setConstant(field_obj["const"].toBool(false));
+            }
+            else{
+                f->setExtra(key, field_obj[key].toVariant());
+            }
+            available_keys.removeFirst();
+        }//while
+        addField(f);
+        return true;
+    }
+    return false;
+}
+
 bool Register::loadJsonData(const QByteArray &json_data, quint32 options )
 {
     QJsonParseError parseError;
@@ -126,65 +220,20 @@ bool Register::loadJsonData(const QByteArray &json_data, quint32 options )
 
     const QJsonArray fields_array = jsonDoc.array();
     for(int i=0;i<fields_array.count();i++){
-        const QJsonObject field = fields_array[i].toObject();
-        QStringList available_keys = field.keys();
 
-        if(available_keys.contains("offset")){
-            quint32 offset;
-            if(field["offset"].isString())
-                offset = Register::strToUInt(field["offset"].toString());
-            else offset = (quint32)field["offset"].toInt();
-            if((quint32)size() < offset+1 ){
-               moveOffset(offset);
-
-            }else{
-                WARNING("Can't make offset");
-            }
-            available_keys.removeOne("offset");
+        // first text field is a name
+        if(i==0 && fields_array[i].isString()){
+               setName(fields_array[i].toString());
         }
 
-        //mandatory field
-        if(!available_keys.contains("name")) {
-            WARNING(QString("Line %1 ignored").arg(i));
-            continue;
-        }
-        available_keys.removeOne("name");
+        // otherwise this is normal field parse (should contain 'name' identifier)
+        else if(fields_array[i].isObject()){
+            const QJsonObject field_obj = fields_array[i].toObject();
 
-        const QString field_name = field["name"].toString();
-        BitField::Parser parser(field_name.toLatin1().constData());
-        BitField *f = BitField::makeField(field_name, &parser);
-        if(f != 0){
-            f->setValue(parser.value());
-            f->setConstant(parser.is_value_constant());
-
-            if(options &AbsoluteRange && parser.ranges() == 2){
-                int lsb = parser.lsb() + m_offset;
-                if(size() < lsb+1 ){
-                    resize(lsb);
-                }
-            }
-            //--- todo AllowSameName
-
-            while(available_keys.count()){
-                const QString key = available_keys.first();
-                if( key == "descr"){
-                    f->setDescription(field[key].toString());
-                }
-                else if(key == "value"){
-                    if(field[key].isString())
-                        f->setValue(Register::strToUInt(field[key].toString()));
-                    else
-                        f->setValue((quint32)field[key].toInt());
-                }
-                else if(key == "const"){
-                    f->setConstant(field["const"].toBool(false));
-                }
-                else{
-                    f->setExtra(key, field[key].toVariant());
-                }
-                available_keys.removeFirst();
-            }//while
-            addField(f);
+            // process As BIT FIELD
+            if(field_obj.keys().contains("name"))
+                if(!parseJsonObjectAsField(field_obj,  options))
+                     WARNING(QString("Line %1 ignored").arg(i));
         }
     }
     return true;
@@ -200,30 +249,14 @@ void Register::cond_update(bool changed)
     case UpdateOnChange:
         if(!changed)   break;
     case UpdateAlways:
-        __SET(name());
+        Q_EMIT __SET(name());
         break;
     }
 }
 
 
-/****************************************************************************
- * @function name: Register::addField()
- *
- * @param:
- *   const QByteArray &bitname
- * @description: Adds bit with name value automatically set to zero
- *              m_chain is a list container of single bits. each bit is represented
- *              by pointer to object Bit. So m_chain index equals to bit position in list.
- *              Bit are stored from LSB to msb.
- *              Example: Register("A[8];B[8]")
- *                       in m_chain is A(0,,,7),B(0,,,7),...
- *              name is the same.
- *              There are two types of parser used
- *              I) has format "@register=NAME;@bit=A[8] @value=123 @descr=DESCRIPTION;..."
- *              II) second format "A[8]=0;B[8]=123#DESCRIPTION;,,,"
- * @return: ( int ) number of bits added
- ****************************************************************************/
-bool Register::addField(const QString &fieldname, quint32 options, qint32 put_to)
+
+bool Register::addField(const QString &fieldname, quint32 options)
 {
     int result=0;
     if(!fieldname.isEmpty())
@@ -281,28 +314,14 @@ int Register::fieldsCount() const
     return m_fields.count();
 }
 
-/****************************************************************************
- * @function name: Register::contains()
- *
- * @param:
- *      const QString &name
- * @description: if register contains bit name
- * @return: (Bit *) - bit pointer
- ****************************************************************************/
+
 bool Register::contains(const QString &name)
 {
     return field(name) != 0;
 }
 
 
-/****************************************************************************
- * @function name: Register::toString()
- *
- * @param:
- *             void
- * @description: Converts register to string
- * @return: ( const QByteArray)  -returns string
- ****************************************************************************/
+
 const QString Register::toString(const QString &format, bool skip_empty)
 {
     QString result ;
@@ -328,19 +347,32 @@ const QString Register::toString(const QString &format, bool skip_empty)
         // in field
         if(pfield){
 
-            if(pfield->size()>1)
+            if(pfield->size()>1){
                 dict["name"] = QString("%1[%2]").arg(pfield->name()).arg(pfield->size());
-            else
+                dict["offset-name"] = QString("%1[%2]")
+                                        .arg(i/8,4,16,QChar('0'))
+                                        .arg(i%8);
+            }
+            else{
                 dict["name"] = pfield->name();
+                dict["offset-name"] = QString("%1[%2:%3]")
+                                        .arg(i/8,4,16,QChar('0'))
+                                        .arg(i%8)
+                                        .arg(i%8+pfield->size());
+            }
+
             dict["purename"] = pfield->name();
-            dict["hex"] = QString::number(pfield->value(),16);
-            dict["bin"] = QString("b%1").arg(pfield->value(),0,2);
+            dict["hexbyte"] = pfield->toHex();
+            dict["ascii"] = QString::fromStdString(pfield->toByteArray().toStdString());
+            dict["hex-value"] = QString::number(pfield->value(),16);
+            dict["binary"] = QString("b%1").arg(pfield->value(),0,2);
             dict["value"]  = QString::number(pfield->value());
+            dict["dec-value"]  = QString::number(pfield->value());
             dict["offset"] = QString("%1").arg(i,0,16);
             dict["range"] = QString("%2:%1").arg(i).arg(i+pfield->size()-1);
             dict["descr"] = pfield->description();
             dict["extras"] = pfield->extras().join('|');
-            dict["readonly"] = QString::number(pfield->constant());
+            dict["rdonly"] = QString::number(pfield->constant());
 
             // replace bit extra with name
             foreach(const QString &extraname, pfield->extras())
@@ -351,6 +383,7 @@ const QString Register::toString(const QString &format, bool skip_empty)
             replaceTagsInLine(&line,dict);
             result += line;
         }
+        // not assigned to field
         else{
             if(!skip_empty){
 
@@ -365,10 +398,12 @@ const QString Register::toString(const QString &format, bool skip_empty)
 
                 dict["name"] = QString("_undef_[%2]").arg(_undef_size);
                 dict["purename"] = "_undef_";
-                dict["hex"] = QString("%1").arg(at(i)->value,0,16);
-                dict["bin"] = QString("b%1").arg(at(i)->value,0,2);
+                dict["hexbyte"] = pfield->toHex();
+                dict["hex-value"] = QString("%1").arg(at(i)->value,0,16);
+                dict["dec-value"]  = QString::number(pfield->value());
+                dict["binary"] = QString("b%1").arg(at(i)->value,0,2);
                 dict["value"]  = QString::number(at(i)->value);
-                dict["readonly"] = false;
+                dict["rdonly"] = "false";
                 dict["offset"] = QString("%1").arg(bak_i,0,16);
                 dict["range"] = QString("%2:%1").arg(bak_i).arg(bak_i+_undef_size-1);
                 replaceTagsInLine(&line,dict);
@@ -393,7 +428,7 @@ void Register::replaceTagsInLine(QString *line, QMap<QString,QString> &dict){
 bool Register::fromString(const QString &text, const char ln_separator, const char eq_separator)
 {
     bool ok=false;
-    foreach(const QString &line ,text.split(ln_separator,Qt::SkipEmptyParts))
+    foreach(const QString &line ,text.split(ln_separator,QString::SkipEmptyParts))
     {
         QStringList l = line.split(eq_separator);
         if(l.size() == 2)
@@ -411,15 +446,7 @@ bool Register::fromString(const QString &text, const char ln_separator, const ch
 }
 
 
-/****************************************************************************
- * @function name: Register::findFieldByName - ---
- *
- * @param:
- *
- *  const QByteArray & name
- * @description:
- * @return: ( qint32 ) returns index of bit in scanchain
- ****************************************************************************/
+
 BitField* Register::field(const QString &name)
 {
     for (qint32 i = 0; i < m_fields.size(); i++)
@@ -452,20 +479,7 @@ Register *Register::makeSubRegister(Register *parent, const QString &name)
 }
 
 
-/****************************************************************************
- * @function name: Register::setValue()
- *
- * @param:
- *g
- *      QByteArray field -field name.
- *                      Format is: (I)"string[nn]" -where nn = number of bit
- *                                  'string' is not requred.this parameter
- *                                  will ignored
- *                                 (II) "string[nn:yy]" - nn:yy is a field
- *      quint32 value  -value is value to pass to a field or bit
- * @description: This function sets value to scanchain
- * @return: ( void )
- ****************************************************************************/
+
 bool Register::setFieldValue(const QString &field, quint32 value)
 {
     bool result = false;
@@ -533,15 +547,7 @@ bool Register::setFieldValue(const QString &field, quint32 value)
 
 
 
-/****************************************************************************
- * @function name: Register::value()
- *
- * @param:
- *
- *  QByteArray field - see format above
- * @description: thisfunction returns value of field or single bit
- * @return: ( quint32 ) returns value
- ****************************************************************************/
+
 quint32 Register::fieldValue(const QString &field) // ------------------------------------remake
 {
     quint32 result=0;
@@ -613,17 +619,6 @@ quint32 Register::fieldValue(const QString &field) // --------------------------
 
 
 
-/****************************************************************************
- * @function name: Register::sub()
- * @param:
- *      qint32 from - index from including itself
- *      qint32 to - index to including itself
- *              if to is higher then size() or -1
- *                   will be assigned to value size()-1
- * @description: sets value to range in register
- *
- * @return: ( void )
- ****************************************************************************/
 Register * Register::sub(qint32 from, qint32 to)
 {
     if(mp_temporary == NULL)
@@ -649,14 +644,7 @@ Register * Register::sub(qint32 from, qint32 to)
     return mp_temporary;
 }
 
-/****************************************************************************
- * @function name: Register::sub()
- * @param:
- *      const QString &bitname - bits with name
- * @description: sets value to bits with given name
- *
- * @return: ( void )
- ****************************************************************************/
+
 Register * Register::sub(const QString &fieldname)
 {
     if(mp_temporary == NULL) {
@@ -744,14 +732,6 @@ Register * Register::sub(const QString &extra_name, const QVariant &extra_value)
 }
 
 
-/****************************************************************************
- * @function name: Register::isSame()
- * @param:
- *      Register *preg - pointer to register compares with current
- * @description: returns true if register is same.
- *      Same means when register has same bit names and size
- * @return: ( bool ) true - is similar
- ****************************************************************************/
 bool Register::isSame(Register *preg)
 {
     if(BitSet::isSame(preg)){
@@ -815,17 +795,10 @@ void Register::moveOffset(unsigned int offset )
     resize(offset);
 }
 
-/****************************************************************************
- * @function name: Register::removeField(const QString &name)
- * @param:
- *        const QString &name
- * @description:
- * @return: ( quint32 )
- ****************************************************************************/
 void Register::removeField(const QString &fieldname, bool include_bits)
 {
     BitField *f = field(fieldname);
-    m_fields.removeOne(f);    
+    m_fields.removeOne(f);
     // deleting bits
     if(include_bits)    {
         while(!f->empty()){
@@ -883,8 +856,4 @@ quint32 Register::crc(int bits, quint32 seed, quint32 poly, bool padding, QStrin
     crc = reg.sub(0,bits-1)->toUInt();
     return crc;
 }
-
-
-
-#endif
 

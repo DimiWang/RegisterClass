@@ -1,6 +1,8 @@
 
 INCLUDEPATH += $$PWD
 
+DEFINES += Q_FOREACH
+
 HEADERS +=\
     $$PWD/bit.h \
     $$PWD/bitfield.h \

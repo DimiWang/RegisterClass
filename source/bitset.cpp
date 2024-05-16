@@ -1,4 +1,6 @@
 #include "bitset.h"
+#include <QtEndian>
+
 BitSet::BitSet(const QString &name, int size, bool owner):
     QList<Bit*>()
    ,m_bits_owner(owner)
@@ -21,14 +23,7 @@ BitSet::~BitSet()
     clear();
 }
 
-/****************************************************************************
- * @function name: BitSet::resize()
- * @param:
- *      qint32 size -size of register
- * @description: resizes register if size of current register is higher than
- *                  size it will be cleared
- * @return: ( void )
- ****************************************************************************/
+
 void BitSet::resize(qint32 size_need)
 {        
     while(size_need>size())
@@ -69,14 +64,6 @@ void BitSet::setName(const QString &name)
     m_name = name;
 }
 
-///****************************************************************************
-// * @function name: Register::clear()
-// *
-// * @param:
-// *             void
-// * @description: clear bits from chain. Deletes bits
-// * @return: ( void )
-// ****************************************************************************/
 void BitSet::clear()
 {
     if(isBitsOwner()){
@@ -106,16 +93,6 @@ void BitSet::invert()
     }
 }
 
-/****************************************************************************
- * @function name: Register::setValue()
- *
- * @param:
- *      qint32 from - index from
- *      qint32 to - index to
- *      quint32 value - value is value to pass to a field or bit
- * @description: This function sets value to scanchain
- * @return: ( void )
- ****************************************************************************/
 bool BitSet::setValue(qint32 from, qint32 to, quint32 value)
 {
     bool value_changed=false;
@@ -149,16 +126,6 @@ void BitSet::roll()
 }
 
 
-/****************************************************************************
- * @function name: BitSet::value()
- *
- * @param:
- *  qint32 from
- *  qint32 to
- *
- * @description: thisfunction returns value of field or single bit
- * @return: ( quint32 ) returns value
- ****************************************************************************/
 quint32 BitSet::value(qint32 from, qint32 to, bool *p_ok)
 {
     quint32 result = 0;
@@ -182,14 +149,6 @@ quint32 BitSet::value(qint32 from, qint32 to, bool *p_ok)
     return result;
 }
 
-/****************************************************************************
- * @function name: BitSet::toUInt()
- *
- * @param:
- *      BitOrder bitorder
- * @description: converts register to unsigned 32bit unsigned int
- * @return: ( quint32 ) returns value
- ****************************************************************************/
 quint32 BitSet::toUInt(BitOrder bitorder)
 {
     quint32 result =0;
@@ -207,15 +166,6 @@ quint32 BitSet::toUInt(BitOrder bitorder)
     return result;
 }
 
-/****************************************************************************
- * @function name: BitSet::setUInt()
- *
- * @param:
- *      quint32 value
- *      BitOrder bitorder
- * @description: sets value to register as unsigned int 32 bit
- * @return: ( void )
- ****************************************************************************/
 void BitSet::setUInt(quint32 value, BitOrder bitorder)
 {
     bool value_changed = false;
@@ -239,15 +189,6 @@ void BitSet::setUInt(quint32 value, BitOrder bitorder)
     }
 }
 
-/****************************************************************************
- * @function name: BitSet::setBitValue()
- *
- * @param:
- *      qint32 bitn -bit number to set
- *      bool value  - bit value
- * @description: This function sets bit by its number
- * @return: ( void )
- ****************************************************************************/
 bool BitSet::setBitValue(qint32 bitn, bool value)
 {
     if ( indexValid(bitn) )
@@ -288,15 +229,6 @@ void BitSet::rotateLeft(int count, bool fill)
     }
 }
 
-/****************************************************************************
- * @function name: Register::operator =()
- *
- * @param: Register
- *
- * @description: copies register. IF register is similar (contains the same bits),
- *              it will just copy values. if register is not similar and is zero size
- *              function will make a copy of given register
- ****************************************************************************/
 //[1]
 
 BitSet &BitSet::operator =(BitSet &bitset)
@@ -305,14 +237,6 @@ BitSet &BitSet::operator =(BitSet &bitset)
     return *this;
 }
 
-/****************************************************************************
- * @function name: BitSet::operator !()
- *
- * @param: Register
- *
- * @description: operator not
- * @return: ( Register )  - returns not value
- ****************************************************************************/
 
 BitSet BitSet::operator !()
 {
@@ -325,14 +249,6 @@ BitSet BitSet::operator !()
 }
 
 //[2]
-/****************************************************************************
- * @function name: BitSet::operator =()
- *
- * @param: quint32
- *
- * @description: fills register with value. doesnot change register structure
- * @return: ( qint32 )  -returns number of bits in scanchain
- ****************************************************************************/
 BitSet &BitSet::operator = (quint32 val)
 {
     bool value_changed=false;
@@ -348,14 +264,6 @@ BitSet &BitSet::operator = (quint32 val)
     return *this;
 }
 
-/****************************************************************************
- * @function name: Register::operator |=
- *
- * @param:
- *
- * @description:
- * @return: ( Bit * )  - returns pointer to bit
- ****************************************************************************/
 //[1]
 BitSet &BitSet::operator |= (BitSet &reg)
 {
@@ -383,14 +291,6 @@ BitSet &BitSet::operator |= (quint32 val)
     return *this;
 }
 
-/****************************************************************************
- * @function name: Register::operator ==
- *
- * @param:
- *          Register &reg)
- * @description:
- * @return: ( bool )
- ****************************************************************************/
 bool BitSet::operator == (BitSet &reg)
 {
     bool result = false;
@@ -424,14 +324,6 @@ bool BitSet::operator == (quint32 val)
 }
 
 
-/****************************************************************************
- * @function name: BitSet::operator !=
- *
- * @param:
- *              BitSet &reg
- * @description: operator not equal
- * @return: ( bool )
- ****************************************************************************/
 bool BitSet::operator != (BitSet &reg)
 {
     return !(operator ==(reg));
@@ -443,27 +335,11 @@ bool BitSet::operator [](int index)
 }
 
 
-/****************************************************************************
- * @function name: BitSet::operator !=
- *
- * @param:
- *              quint32 vl
- * @description: operator not equal
- * @return: ( bool )
- ****************************************************************************/
 bool BitSet::operator != (quint32 val)
 {
     return !(operator ==(val));
 }
 
-/****************************************************************************
- * @function name: BitSet::operator ^=
- *
- * @param:
- *
- * @description:
- * @return: ( Bit * )  - returns pointer to bit
- ****************************************************************************/
 //[1]
 BitSet &BitSet::operator ^= (BitSet &reg)
 {
@@ -491,14 +367,6 @@ BitSet &BitSet::operator ^= (quint32 val)
     return *this;
 }
 
-/****************************************************************************
- * @function name: BitSet::operator &=
- *
- * @param:
- *              BitSet &reg)
- * @description:
- * @return: ( Bit * )  - returns pointer to bit
- ****************************************************************************/
 //[1]
 BitSet &BitSet::operator &= (BitSet &reg)
 {
@@ -526,14 +394,6 @@ BitSet &BitSet::operator &=(quint32 val)
     return *this;
 }
 
-/****************************************************************************
- * @function name: BitSet::bit()
- *
- * @param:
- *      qint32 bitn
- * @description: this function gets bit
- * @return: ( bool ) - bit value
- ****************************************************************************/
 bool BitSet::bitValue(qint32 index, bool *p_ok)
 {
     if( indexValid(index) ){
@@ -544,16 +404,6 @@ bool BitSet::bitValue(qint32 index, bool *p_ok)
     return false;
 }
 
-/****************************************************************************
- * @function name: BitSet::fill()
- *
- * @param:
- *          bool value - value of bit
- *          qint32 count    -count of bit from start
- *          qint32 start - start bit number
- * @description: fills register bits with value from start
- * @return: ( void )
- ****************************************************************************/
 void BitSet::fill(bool value, qint32 start, qint32 count)
 {
     if (count == -1 || (count +start) >size())
@@ -566,15 +416,6 @@ void BitSet::fill(bool value, qint32 start, qint32 count)
     }
 }
 
-/****************************************************************************
- * @function name: BitSet::join()
- *
- * @param:
- *      const BitSet &reg
- * @description: this joins (appends ) to the end
- *          if register is subregister - function will append just pointer(s) of bit
- * @return: (Bit *) - bit pointer
- ****************************************************************************/
 void BitSet::join(BitSet &reg)
 {
     int i;
@@ -605,138 +446,123 @@ void BitSet::join(BitSet *preg)
         }
     }
 }
-
-/****************************************************************************
- * @function name: BitSet::toByteArray()
- *
- * @param:
- *        BitOrder bitorder
- *
- * @description: This function converts current scanchain to bytearray
- * @return: (QByteArray ) - returns number of bits in bytearray
- ****************************************************************************/
-QByteArray BitSet::toByteArray(BitOrder bitorder,bool contiguously)
+#include <QDebug>
+QByteArray BitSet::toByteArray(BitOrder bitorder, Endianess endianess)
 {
     QByteArray bytearray;
-    quint8 byte = 0;
-    for (qint32 byte_i = 0; byte_i < size(); )
+    quint8 byte = 0;    
+    for (qint32 i = 0; i < size()+1; i++)
     {
-        quint8 bit;
-        qint32 index = byte_i;
-        if(bitorder == MSB)
+        const bool new_byte = ((i % 8) == 0 &&i>0);
+        if ( new_byte || i==size())
         {
-            index = size() - 1 - byte_i;
-        }
-        bit = (at(index)->value != 0);
-        if(contiguously)
-        {
-            byte |= (bit<< (7-(byte_i % 8)));
-        }
-        else{
-            byte |= (bit<<    (byte_i % 8));
-        }
-        byte_i++;
-        if ( (byte_i % 8) == 0 || byte_i >= size() )
-        {
-            bytearray.append(byte);
+            bytearray.append(1,byte);
             byte = 0;
         }
+
+        qint32 index;
+        switch(bitorder){
+        case MSB:
+            index = size() - 1 - i;
+            break;
+        case LSB:
+            index = i;
+            break;
+        case MSB8:
+            index = (8*(i/8+1)-i%8-1);
+            break;
+        }
+
+        quint8 bit=0;
+        if( indexValid(index) )
+            bit = (at(index)->value != 0);        
+
+        byte |= (bit<<    (i % 8));
+    }    
+
+    switch(endianess){
+    case ENDIAN_LITTLE:
+        // no chage
+        break;
+    case ENDIAN_BIG_16BIT:
+        // TBD
+        break;
+    case ENDIAN_BIG_32BIT:
+        // TBD
+        break;
     }
+
     return bytearray;
 }
 
-/****************************************************************************
- * @function name: BitSet::fromByteArray()
- *
- * @param:
- *       const QByteArray &bytearray - data array
- *       qint32 scanchain_length - length in bits
- *       BitOrder bitorder (default = LSB)
- *       bool contiguously  bits go like this 7.6.5..1.0.7.
- *
- * @description: This function populates scan chain by values from bytearray
- *
- *              !!!if register is Empty (size ==0)
- *                      will be resized and then populated
- * @return: ( bool ) -if success
- ****************************************************************************/
 bool BitSet::fromByteArray(const QByteArray &bytearray
                            , qint32 length_bits
                            , BitOrder bitorder
-                           ,bool contiguously
+                           , Endianess endianess
                            )
 {
     bool result=false;
-    qint32 bit_i = 0;
-    qint32 byte_i;
-    quint8 byte;
-    if(length_bits == -1) {
-        length_bits = bytearray.size() * 8;
+    switch(endianess){
+    case ENDIAN_LITTLE:
+        // no chage
+        break;
+    case ENDIAN_BIG_16BIT:
+        // TBD
+        break;
+    case ENDIAN_BIG_32BIT:
+        // TBD
+        break;
     }
 
-    if (( bytearray.size() * 8) >= length_bits)
-    {
+    if(length_bits == -1 || length_bits>size() ) length_bits = size();
 
-        for (qint32 i = 0; i < length_bits; i++)
-        {
-            if(i>=size()) break;
+    if(bytearray.size()>0){
+        qint32 bit_i = 0;
+        for(int i=0;i<bytearray.size();i++){
+            const quint8 byte = bytearray[i];
+            bool stop =false;
 
-            byte_i = i / 8;
-            bit_i = i % 8;
-            byte = bytearray[byte_i];
-            quint8 bit;
-            if(contiguously)
-            {
-                bit = (byte >> (7-bit_i)) & 1;
+            for(int j=0;j<8;j++){
+                quint8 bit = (byte >> j) & 1;
+                int index;
+                switch(bitorder)
+                {
+                case LSB:
+                    index = bit_i;
+                    break;
+
+                case MSB:
+                    index = size()-1-bit_i;
+                    break;
+
+                case MSB8:
+                    index = (8*(bit_i/8+1)-bit_i%8-1);
+                    break;
+                }
+
+                setBitValue(index, bit );
+                bit_i++;
+                if(bit_i>length_bits) {stop=1;break;}
             }
-            else {
-                bit = (byte >> bit_i) & 1;
-            }
-
-            switch(bitorder)
-            {
-            case LSB:
-                setBitValue(i , bit);
-                break;
-
-            case MSB:
-                setBitValue(size()-1-i , bit);
-                break;
-
-            case MSB8:
-                setBitValue((8*(i/8+1)-i%8-1),bit);
-                break;
-
-            }
-
+            if(stop) break;
         }
-        result=true;
+        result = true;
     }
-
     return result;
 }
 
 bool BitSet::fromHex(const QString &hex, qint32 length_bits
-                     , BitSet::BitOrder bitorder, bool contiguously)
+                     , BitSet::BitOrder bitorder, Endianess endianess)
 {
-    return fromByteArray(QByteArray::fromHex(hex.toLatin1()), length_bits, bitorder, contiguously);
+    return fromByteArray(QByteArray::fromHex(hex.toLatin1()), length_bits, bitorder, endianess);
 }
 
-QString BitSet::toHex(BitSet::BitOrder bitorder, bool contiguously)
+QString BitSet::toHex(BitSet::BitOrder bitorder, Endianess endianess)
 {
-    return QString(toByteArray(bitorder,contiguously).toHex());
+    return QString(toByteArray(bitorder,endianess).toHex());
 }
 
-/****************************************************************************
- * @function name: BitSet::toBitString()
- *
- * @param:
- *
- *        BitOrder bitorder
- * @description: This function converts current scanchain to bit string
- *                "101111" (MSB...LSB)
- * @return: ( QByteArray ) - returns number of bits in bytearray
- ****************************************************************************/
+
 QByteArray BitSet::toBitString(BitOrder bitorder)
 {
     QByteArray bytearray;
@@ -758,18 +584,6 @@ QByteArray BitSet::toBitString(BitOrder bitorder)
 }
 
 
-
-/****************************************************************************
- * @function name: BitSet::fromBitStringToUint()
- *
- * @param:
- *
- *       onst QByteArray & ba  - data array
- * @description: This function converts current bit string to uint
- *               ByteArray("x7....x0")
- *               spaces or '.' as separators are available
- * @return: ( qint32 ) - returns value
- ****************************************************************************/
 quint32 BitSet::fromBitStringToUint(const QByteArray & ba)
 {
     quint32 result = 0;
@@ -792,17 +606,6 @@ quint32 BitSet::fromBitStringToUint(const QByteArray & ba)
     return result;
 }
 
-/****************************************************************************
- * @function name: BitSet::fromBitString()
- *
- * @param:
- *       QByteArray &bytearray  - datat to load
- *       BitOrder bitorder
- *
- * @description: This function loads "101111" (MSB...LSB)  text
- *               to current scanchain
- * @return: ( void )
- ****************************************************************************/
 void BitSet::fromBitString(const QByteArray &bytearray, BitOrder bitorder)
 {    
     for (qint32 i = 0; i < bytearray.size(); i++)
@@ -821,15 +624,6 @@ void BitSet::fromBitString(const QByteArray &bytearray, BitOrder bitorder)
     }
 }
 
-/****************************************************************************
- * @function name: convertByteArrayToBitArray( )
- * @param:
- *        const QByteArray &data_in
- *        qint32 size_in_bits
- *        BitOrder bitorder
- * @description:
- * @return: ( quint32 )
- ****************************************************************************/
 QByteArray BitSet::convertByteArrayToBitArray(const QByteArray &data_in
                                                     ,qint32 size_in_bits
                                                     ,BitOrder bitorder )

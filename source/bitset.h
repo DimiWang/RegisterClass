@@ -7,15 +7,25 @@
 
 class BitSet;
 
-class BitSet: public QList<Bit*>
+class BitSet : public QList<Bit *>
 {
-
 public:
-
     /* bit LSB(lower) or MSB(higher) */
-    typedef enum { MSB, LSB ,MSB8 } BitOrder;
+    typedef enum
+    {
+        MSB,
+        LSB,
+        MSB8
+    } BitOrder;
 
-    BitSet(const QString &name=QString(), int size=-1, bool owner = true);
+    typedef enum
+    {
+        ENDIAN_LITTLE,
+        ENDIAN_BIG_16BIT,
+        ENDIAN_BIG_32BIT,
+    } Endianess;
+
+    BitSet(const QString &name = QString(), int size = -1, bool owner = true);
 
     BitSet(BitSet &bitset);
 
@@ -35,19 +45,25 @@ public:
     void resize(qint32 size);
 
     /* sets bit as readOnly */
-    void setConstant(const bool value) {m_constant = value;}
+    void setConstant(const bool value)
+    {
+        m_constant = value;
+    }
 
     /* bit is readOnly */
-    bool constant() const {return m_constant;}
+    bool constant() const
+    {
+        return m_constant;
+    }
 
     /* gets value max 32bits */
     quint32 value();
 
     /* gets value from field [from:to]*/
-    quint32 value(qint32 from, qint32 to, bool *p_ok=0);
+    quint32 value(qint32 from, qint32 to, bool *p_ok = 0);
 
     /* gets bit value by number */
-    bool bitValue(qint32 index, bool *p_ok=0);
+    bool bitValue(qint32 index, bool *p_ok = 0);
 
     /* sets value max 32bits */
     void setValue(const quint32 value);
@@ -64,8 +80,8 @@ public:
     bool indexValid(int index);
     /* rotate register to direction "MSB->LSB - right"
      *                              "LSB->MSB - left */
-    void rotateRight(int count=1, bool fill=false);
-    void rotateLeft(int count=1, bool fill=false);
+    void rotateRight(int count = 1, bool fill = false);
+    void rotateLeft(int count = 1, bool fill = false);
 
     /*roll register LSB <>MSB*/
     void roll();
@@ -79,52 +95,55 @@ public:
     operator unsigned int();
 
     /* operator = * doesnt keep names */
-    BitSet &operator = (BitSet &bitset);
-    BitSet &operator = (quint32 val);
+    BitSet &operator=(BitSet &bitset);
+    BitSet &operator=(quint32 val);
 
     /* operator !*/
-    BitSet operator ! ();
+    BitSet operator!();
 
     /* operator ~*/
-    BitSet operator ~ ();
+    BitSet operator~();
 
     /* AND operator */
-    BitSet &operator &= (BitSet &reg);
-    BitSet &operator &= (quint32 val);
+    BitSet &operator&=(BitSet &reg);
+    BitSet &operator&=(quint32 val);
 
     /* XOR operator */
-    BitSet &operator ^= (BitSet &reg);
-    BitSet &operator ^= (quint32 val);
+    BitSet &operator^=(BitSet &reg);
+    BitSet &operator^=(quint32 val);
 
     /* OR operator*/
-    BitSet &operator |= (BitSet &reg);
-    BitSet &operator |= (quint32 val);
+    BitSet &operator|=(BitSet &reg);
+    BitSet &operator|=(quint32 val);
 
     /* equal operator*/
-    bool operator == ( BitSet &reg);
-    bool operator == ( quint32 reg);
+    bool operator==(BitSet &reg);
+    bool operator==(quint32 reg);
 
     /* not equal operator */
-    bool operator != ( BitSet &reg);
-    bool operator != ( quint32 reg);
+    bool operator!=(BitSet &reg);
+    bool operator!=(quint32 reg);
 
-    bool operator [] ( int index);
+    bool operator[](int index);
 
     /* joins other register */
     void join(BitSet &reg);
     void join(BitSet *preg);
 
     /* converts to byte array lsb first*/
-    QByteArray toByteArray(BitOrder bitorder = LSB, bool contiguously=false);
+    QByteArray toByteArray(BitOrder bitorder = LSB, Endianess endianess= ENDIAN_LITTLE);
 
     /* converts to hexademical string*/
-    QString toHex(BitOrder bitorder = LSB, bool contiguously=false);
+    QString toHex(BitOrder bitorder = LSB, Endianess endianess= ENDIAN_LITTLE);
 
     /* loads from byte array */
-    bool fromByteArray(const QByteArray &bytearray, qint32 scanchain_length=-1,BitOrder bitorder = LSB, bool contiguously=false);
+    bool fromByteArray(const QByteArray &bytearray,
+                       qint32 scanchain_length = -1,
+                       BitOrder bitorder = LSB,
+                       Endianess endianess= ENDIAN_LITTLE);
 
     /* from hexademical representation */
-    bool fromHex(const QString &hex, qint32 length_bits=-1, BitOrder bitorder = LSB, bool contiguously=false);
+    bool fromHex(const QString &hex, qint32 length_bits = -1, BitOrder bitorder = LSB, Endianess endianess= ENDIAN_LITTLE);
 
     /* converts to bit string format:101010111 */
     QByteArray toBitString(BitOrder bitorder = LSB);
@@ -133,19 +152,23 @@ public:
     quint32 toUInt(BitOrder bitorder = LSB);
 
     /* set register as unsigned int 32bit.rest(>32 bit) is ignored*/
-    void setUInt(quint32 value,BitOrder bitorder= LSB);
+    void setUInt(quint32 value, BitOrder bitorder = LSB);
 
     /* loads from Bit String */
     void fromBitString(const QByteArray &bytearray, BitOrder bitorder = LSB);
 
     /* Converts from string to integer. Example: from '1111 0000' format to 0xF0 */
-    static quint32 fromBitStringToUint(const QByteArray & ba);
+    static quint32 fromBitStringToUint(const QByteArray &ba);
 
     /* converts byte array to bit array */
-    static QByteArray convertByteArrayToBitArray(const QByteArray &data_in, qint32 size_in_bits, BitOrder bitorder = LSB);
+    static QByteArray convertByteArrayToBitArray(const QByteArray &data_in,
+                                                 qint32 size_in_bits,
+                                                 BitOrder bitorder = LSB);
 
     /* converts bit array to byte array */
-    static QByteArray convertBitArrayToByteArray(const QByteArray &data_in, BitOrder bitorder = LSB, bool contiguously = false);
+    static QByteArray convertBitArrayToByteArray(const QByteArray &data_in,
+                                                 BitOrder bitorder = LSB,
+                                                 bool contiguously = false);
 
     void copy(BitSet &bit_set);
     virtual bool isSame(BitSet *preg);
@@ -154,7 +177,10 @@ protected:
     /**/
     Bit *bitAt(int index);
     /* check if bits owner. this can be changed only in constructor -before bits adding*/
-    bool isBitsOwner() const {return m_bits_owner;}
+    bool isBitsOwner() const
+    {
+        return m_bits_owner;
+    }
 
 private:
     bool m_constant;
@@ -162,7 +188,6 @@ private:
     bool m_bits_owner;
     /* bit name */
     QString m_name;
-
 };
 
 #endif // BITSET_H
