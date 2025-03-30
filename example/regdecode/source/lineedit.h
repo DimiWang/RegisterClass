@@ -20,7 +20,7 @@ public:
 
     bool editEnabled()const{return !isReadOnly();}
     void setEditEnabled(bool on){  setReadOnly(!on);}
-    void setValue(quint32 v);
+    void setValue(quint32 v);    
     quint32 value()const;
     void setInputBase(int);
 
@@ -53,6 +53,7 @@ protected:
 
 
     qint32 m_input_base;
+    bool m_textMode;
     bool m_allowUpdate;
     quint32 m_value;
     bool checkInputValue(qint32 *base);
@@ -71,7 +72,10 @@ protected:
 signals:
    void updateState();
 
-private slots:
+public Q_SLOTS:
+    void setText(const QString &);
+
+private Q_SLOTS:
     void slot_TextChanged();
     void slot_triggered();
     void slot_updateState();

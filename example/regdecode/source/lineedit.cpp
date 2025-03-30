@@ -9,9 +9,9 @@ LineEdit::LineEdit(QWidget *p): QLineEdit(p)
     m_allowUpdate = false;
     setFocusPolicy(Qt::WheelFocus);
 
-    m_input_base = 10;    
+    m_input_base = 10;
     m_state.reset();
-    connect(this,SIGNAL(textChanged(QString)),this,SLOT(slot_TextChanged()));    
+    connect(this,SIGNAL(textChanged(QString)),this,SLOT(slot_TextChanged()));
     connect(this,SIGNAL(updateState()), this ,SLOT(slot_updateState()), Qt::QueuedConnection);
 
     // send value
@@ -24,6 +24,8 @@ LineEdit::~LineEdit(){}
 
 void LineEdit::setValue(quint32 v)
 {    
+    m_textMode = false;
+    setAlignment(Qt::AlignRight);
     blockSignals(1);
     m_value = v;
     QLineEdit::setText( toText(v));
@@ -60,7 +62,7 @@ void LineEdit::focusOutEvent(QFocusEvent *pevent)
 {
     QLineEdit::focusOutEvent(pevent);
     m_allowUpdate = false;
-     emit focusOut();
+    emit focusOut();
 }
 
 void LineEdit::contextMenuEvent(QContextMenuEvent *event)
@@ -69,14 +71,20 @@ void LineEdit::contextMenuEvent(QContextMenuEvent *event)
     QAction *actionHex = menu.addAction("HEX");
     QAction *actionBin =  menu.addAction("BIN");
     QAction *actionDec =  menu.addAction("DEC");
+    QAction *actionText=  menu.addAction("Text");
     QActionGroup gr(this);
     gr.addAction(actionHex);
     gr.addAction(actionBin);
     gr.addAction(actionDec);
+    gr.addAction(actionText);
     actionDec->setCheckable(true);
     actionHex->setCheckable(true);
     actionBin->setCheckable(true);
-
+    actionText->setCheckable(true);
+    if(m_textMode){
+        actionText->setChecked(1);
+    }
+    else{
         if(inputBase()==2){
             actionBin->setChecked(1);
         }
@@ -88,20 +96,27 @@ void LineEdit::contextMenuEvent(QContextMenuEvent *event)
         {
             actionHex->setChecked(1);
         }
+    }
 
     menu.exec(event->globalPos());
-
-    if (actionBin->isChecked())
-    {
-        setInputBase(2);
+    if (actionText->isChecked()){
+        m_textMode =  true;
+        setAlignment(Qt::AlignLeft);
     }
-    else if (actionDec->isChecked())
-    {
-         setInputBase(10);
-    }
-    else if (actionHex->isChecked())
-    {
-         setInputBase(16);
+    else{
+        setAlignment(Qt::AlignRight);
+        if (actionBin->isChecked())
+        {
+            setInputBase(2);
+        }
+        else if (actionDec->isChecked())
+        {
+            setInputBase(10);
+        }
+        else if (actionHex->isChecked())
+        {
+            setInputBase(16);
+        }
     }
 }
 
@@ -156,14 +171,21 @@ bool LineEdit::event(QEvent *e)
                              "<br>0b%3</>"
                              )
 
-                    .arg((int)m_value)
-                    .arg(QString::number((int)m_value,16).toUpper())
-                    .arg(QString::number((int)m_value,2))
-                    .arg(this->accessibleName())                    
-                    );
+                     .arg((int)m_value)
+                     .arg(QString::number((int)m_value,16).toUpper())
+                     .arg(QString::number((int)m_value,2))
+                     .arg(this->accessibleName())
+                     );
     }
 
     return QLineEdit::event(e);
+}
+
+void LineEdit::setText(const QString &text)
+{
+    m_textMode = true;
+    setAlignment(Qt::AlignLeft);
+    QLineEdit::setText(text);
 }
 
 void LineEdit::slot_triggered(){
@@ -176,8 +198,8 @@ void LineEdit::slot_triggered(){
 }
 
 void LineEdit::setErrorState(bool on){
-     m_state.error = on;
-     emit updateState();
+    m_state.error = on;
+    emit updateState();
 }
 
 bool LineEdit::checkInputValue(qint32 *base)
@@ -190,7 +212,7 @@ bool LineEdit::checkInputValue(qint32 *base)
     }
     else if(text().startsWith("0x")) {
         *base=16;
-         m_value = (double)text().mid(2).toUInt(&ok, inputBase());
+        m_value = (double)text().mid(2).toUInt(&ok, inputBase());
     }
     else if(text().startsWith("0b")) {
         *base = 2;
@@ -207,14 +229,14 @@ QString LineEdit::toText(quint32 val)
 {
     switch(m_input_base)
     {
-        case 16:
-            return "0x"+QString::number((ulong)val,16).toUpper();
+    case 16:
+        return "0x"+QString::number((ulong)val,16).toUpper();
 
-        case 2:
-            return "0b"+QString::number((ulong)val,2).toUpper();
+    case 2:
+        return "0b"+QString::number((ulong)val,2).toUpper();
 
-        case 10:
-            return QString::number((ulong)val,10).toUpper();
+    case 10:
+        return QString::number((ulong)val,10).toUpper();
     }
     return QString();
 }
@@ -223,7 +245,7 @@ quint32 LineEdit::fromText(const QString &text)
 {
 
     if(text.startsWith("0x")) {
-         return (double)text.mid(2).toUInt(0, inputBase());
+        return (double)text.mid(2).toUInt(0, inputBase());
     }
     else if(text.startsWith("0b")) {
         return (double)text.mid(2).toUInt(0, inputBase());

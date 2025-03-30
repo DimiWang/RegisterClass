@@ -32,8 +32,11 @@ class Register;
 /* bits splitter */
 #define BITS_SPLITTER (';')
 
-#define WARNING(txt) signal_Warning(txt);
-#define ERROR(txt) signal_Error(txt);
+#define WARNING(txt) signal_Warning(txt);\
+                    qWarning()<<txt;
+
+#define ERROR(txt) signal_Error(txt);\
+                    qCritical()<<txt;
 
 class Register : public QObject, public BitSet
 {
@@ -191,6 +194,7 @@ public:
     quint32 crc(int bits, quint32 seed, quint32 poly, bool padding = true, QString *ptext = 0);
 
     Register *temporary() {return this->mp_temporary;}
+
 signals:
     /* signal register is removed*/
     void removed();
@@ -227,7 +231,9 @@ signals:
 
 private:
     BitField *findFieldByBit(Bit *pbit);   
-    bool parseJsonObjectAsField(const QJsonObject &field_obj, quint32 options);
+    bool parseJsonObjectAsField(const QJsonObject &field_obj, quint32 options, QHash<QString, QVariant> &dict);
+    bool parseJsonObjectAsDict(const QJsonObject &field_obj, QHash<QString,QVariant> *dict);
+    bool parseJsonObjectAsOptions(const QJsonObject &field_obj, quint32 *options);
 
 protected:
     /* create temporary register when is not*/
@@ -270,6 +276,7 @@ protected:
     QHash<QString, QVariant> m_extra;
 
     void replaceTagsInLine(QString *line, QMap<QString, QString> &dict);
+    static bool validateName(const QString &name);
 };
 
 ////class SubRegister:public Register{

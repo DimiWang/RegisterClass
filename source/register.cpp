@@ -10,6 +10,7 @@
 #include "register.h"
 #include <QDebug>
 #include "bitfield.h"
+#include "register.h"
 #include <QStringList>
 #include <QJsonDocument>
 #include <QJsonArray>
@@ -82,8 +83,8 @@ bool Register::blockSignals(bool b)
 void Register::clear()
 {
     if(!isSub()){
-        foreach(BitField *pfield, m_fields){
-            delete pfield;
+        for(int i=0;i<m_fields.count();i++){
+            delete m_fields.at(i);
         }
     }
     BitSet::clear();
@@ -92,10 +93,58 @@ void Register::clear()
 
 }
 
-bool Register::parseJsonObjectAsField(const QJsonObject &field_obj, quint32 options){
+bool Register::parseJsonObjectAsDict(const QJsonObject &field_obj, QHash<QString,QVariant> *dict){
     QStringList available_keys = field_obj.keys();
 
     QString field_tag;
+
+    //mandatory field
+    if(available_keys.contains("dict")){
+
+    // start to create a field and give a name
+    const QJsonObject dict_obj = field_obj["dict"].toObject();
+        *dict = dict_obj.toVariantHash();
+        return true;
+    }
+    return false;
+}
+
+bool Register::parseJsonObjectAsOptions(const QJsonObject &field_obj, quint32 *options){
+    QStringList available_keys = field_obj.keys();
+
+    QString field_tag;
+    QHash<QString,QVariant> options_map;
+
+    //mandatory field
+    if(available_keys.contains("options")){
+    qDebug()<<"options";
+    // start to create a field and give a name
+    const QJsonObject dict_obj = field_obj["options"].toObject();
+        options_map = dict_obj.toVariantHash();
+        if(options_map.contains("allow-same-name")){
+            *options |= AllowSameName;
+        }else if(options_map.contains("absolute-range")){
+            *options |= AbsoluteRange;
+        }
+        else if(options_map.contains("default-value")){
+
+            if(options_map["default-value"].toBool() == true)
+                *options |= Default1;
+            else
+                *options |= Default0;
+        }
+        return true;
+    }
+    return false;
+
+}
+
+
+bool Register::parseJsonObjectAsField(const QJsonObject &field_obj, quint32 options, QHash<QString, QVariant> &dict){
+    QStringList available_keys = field_obj.keys();
+
+    QString field_tag;    
+
     //mandatory field
     if(available_keys.contains("name")){
         field_tag = "name";
@@ -103,11 +152,17 @@ bool Register::parseJsonObjectAsField(const QJsonObject &field_obj, quint32 opti
     else if(available_keys.contains("field")) {
         field_tag = "field";
     }else{
-        // not field
+        //error not a field
         return false;
     }
     // start to create a field and give a name    
     const QString field_name = field_obj[field_tag].toString();
+
+    if(!validateName(field_name)) {
+        WARNING(QString("Field '%1' not a valid name").arg(field_name));
+        return false;
+    }
+
     available_keys.removeOne(field_tag);
 
     if(available_keys.contains("offset")){
@@ -129,10 +184,10 @@ bool Register::parseJsonObjectAsField(const QJsonObject &field_obj, quint32 opti
 
         // offset should be always forward
         if((quint32)size() < offset+1 ){
-            moveOffset(offset);
+            moveOffset(offset&0xffff);
 
         }else{
-            WARNING("Can't make offset");
+            WARNING(QString("Can't make offset %1").arg(field_obj["offset"].toString()));
         }
 
         // this key is processed remove it from list
@@ -186,7 +241,12 @@ bool Register::parseJsonObjectAsField(const QJsonObject &field_obj, quint32 opti
         while(available_keys.count()){
             const QString key = available_keys.first();
             if( key == "descr"){
-                f->setDescription(field_obj[key].toString());
+                const QString &descr = field_obj[key].toString();
+                if(descr.startsWith('@') && dict.contains(descr.mid(1))){
+                    f->setDescription(dict[descr.mid(1)].toString());
+                }else {
+                    f->setDescription(descr);
+                }
             }
             else if(key == "value"){
                 if(field_obj[key].isString())
@@ -208,6 +268,13 @@ bool Register::parseJsonObjectAsField(const QJsonObject &field_obj, quint32 opti
     return false;
 }
 
+bool Register::validateName(const QString &name)
+{
+    QRegExp rx1("^[a-zA-Z_][a-zA-Z0-9_\\.]*$");
+    QRegExp rx2("^[a-zA-Z_][a-zA-Z0-9_\\.]*\\[[Bx0-9\\:]*\\]$");
+    return rx1.exactMatch(name) || rx2.exactMatch(name);
+}
+
 bool Register::loadJsonData(const QByteArray &json_data, quint32 options )
 {
     QJsonParseError parseError;
@@ -217,6 +284,7 @@ bool Register::loadJsonData(const QByteArray &json_data, quint32 options )
         qDebug()<<QString("Parse error at %1:%2").arg(parseError.offset).arg(parseError.errorString());
         return false;
     }
+    QHash<QString, QVariant> dictionary;
 
     const QJsonArray fields_array = jsonDoc.array();
     for(int i=0;i<fields_array.count();i++){
@@ -229,11 +297,20 @@ bool Register::loadJsonData(const QByteArray &json_data, quint32 options )
         // otherwise this is normal field parse (should contain 'name' identifier)
         else if(fields_array[i].isObject()){
             const QJsonObject field_obj = fields_array[i].toObject();
-
+            bool parse_ok = false;
             // process As BIT FIELD
-            if(field_obj.keys().contains("name"))
-                if(!parseJsonObjectAsField(field_obj,  options))
-                     WARNING(QString("Line %1 ignored").arg(i));
+            if(field_obj.keys().contains("name") || field_obj.keys().contains("field")){                
+                parse_ok = parseJsonObjectAsField(field_obj,  options, dictionary);
+            }            
+            else if(field_obj.keys().contains("dict")){
+                parse_ok = parseJsonObjectAsDict(field_obj, &dictionary);
+            }            
+            else if(field_obj.keys().contains("options")){
+                parse_ok = parseJsonObjectAsOptions(field_obj, &options);
+            }
+            if(!parse_ok){
+                WARNING(QString("Line %1 ignored").arg(i));                
+            }
         }
     }
     return true;
@@ -371,6 +448,8 @@ const QString Register::toString(const QString &format, bool skip_empty)
             dict["offset"] = QString("%1").arg(i,0,16);
             dict["range"] = QString("%2:%1").arg(i).arg(i+pfield->size()-1);
             dict["descr"] = pfield->description();
+            dict["size"] = QString("%1").arg(size());
+            dict["size_bytes"] = QString("%1").arg(size()/8);
             dict["extras"] = pfield->extras().join('|');
             dict["rdonly"] = QString::number(pfield->constant());
 
@@ -405,6 +484,8 @@ const QString Register::toString(const QString &format, bool skip_empty)
                 dict["value"]  = QString::number(at(i)->value);
                 dict["rdonly"] = "false";
                 dict["offset"] = QString("%1").arg(bak_i,0,16);
+                dict["size"] = QString("%1").arg(size());
+                dict["size_bytes"] = QString("%1").arg(size()/8);
                 dict["range"] = QString("%2:%1").arg(bak_i).arg(bak_i+_undef_size-1);
                 replaceTagsInLine(&line,dict);
                 result += line;
@@ -621,6 +702,7 @@ quint32 Register::fieldValue(const QString &field) // --------------------------
 
 Register * Register::sub(qint32 from, qint32 to)
 {
+
     if(mp_temporary == NULL)
     {
         makeTemporary();
@@ -630,17 +712,24 @@ Register * Register::sub(qint32 from, qint32 to)
     qint32 lsb = qMin(from,to);
     qint32 msb = qMax(from,to);
     qint32 i;
+
     // cut off
-    if(msb<0 || msb >= size()) msb = size()-1;
 
-    for (i = lsb; i <= msb; i++)
-    {
-        mp_temporary->append(bitAt(i));
-    }
+    if(msb >= size()) msb = size()-1;
+    if(lsb<0 ) lsb = 0;
 
-    if(lsb >= size() || msb >= size())
+    if(lsb >= size() || msb >= size()){
         qWarning()<<QString("Register(%1).sub(%2,%3) - can't find msb, lsb")
                     .arg(name()).arg(from).arg(to);
+    }
+    else{
+        for (i = lsb; i <= msb; i++)
+        {
+            if(indexValid(i)){
+                mp_temporary->append(bitAt(i));
+            }
+        }
+    }
     return mp_temporary;
 }
 
