@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1169</width>
-    <height>656</height>
+    <width>882</width>
+    <height>648</height>
    </rect>
   </property>
   <property name="font">
@@ -53,7 +53,7 @@
           </size>
          </property>
          <property name="currentIndex">
-          <number>3</number>
+          <number>1</number>
          </property>
          <widget class="QWidget" name="tabStructure">
           <attribute name="title">
@@ -73,8 +73,8 @@
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>1103</width>
-                <height>520</height>
+                <width>816</width>
+                <height>346</height>
                </rect>
               </property>
              </widget>
@@ -98,19 +98,6 @@
               <property name="spacing">
                <number>3</number>
               </property>
-              <item row="1" column="5">
-               <widget class="QPushButton" name="pbAdd">
-                <property name="maximumSize">
-                 <size>
-                  <width>30</width>
-                  <height>16777215</height>
-                 </size>
-                </property>
-                <property name="text">
-                 <string>+</string>
-                </property>
-               </widget>
-              </item>
               <item row="1" column="6">
                <widget class="QPushButton" name="pbRemove">
                 <property name="maximumSize">
@@ -124,42 +111,54 @@
                 </property>
                </widget>
               </item>
-              <item row="1" column="7">
-               <widget class="QPushButton" name="pushButton_4">
-                <property name="text">
-                 <string>clear</string>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="8">
+              <item row="1" column="9">
                <widget class="QPushButton" name="pushButton_3">
                 <property name="text">
                  <string>show map</string>
                 </property>
                </widget>
               </item>
+              <item row="1" column="5">
+               <widget class="QPushButton" name="pbAdd">
+                <property name="maximumSize">
+                 <size>
+                  <width>30</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string>+</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="8">
+               <widget class="QPushButton" name="pushButton_4">
+                <property name="text">
+                 <string>clear</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="7">
+               <spacer name="horizontalSpacer_9">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
              </layout>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-         <widget class="QWidget" name="tab">
-          <attribute name="title">
-           <string>Source</string>
-          </attribute>
-          <layout class="QGridLayout" name="gridLayout_7">
-           <item row="0" column="0">
-            <widget class="QPlainTextEdit" name="teRegister">
-             <property name="styleSheet">
-              <string notr="true">background-color: rgb(245, 245, 245);</string>
-             </property>
             </widget>
            </item>
           </layout>
          </widget>
          <widget class="QWidget" name="tabOutput">
           <attribute name="title">
-           <string>Output</string>
+           <string>Data</string>
           </attribute>
           <layout class="QGridLayout" name="gridLayout">
            <property name="leftMargin">
@@ -175,21 +174,325 @@
             <number>3</number>
            </property>
            <property name="spacing">
-            <number>1</number>
+            <number>3</number>
            </property>
-           <item row="4" column="1">
-            <widget class="QLabel" name="lbDataSize">
-             <property name="font">
-              <font>
-               <pointsize>6</pointsize>
-              </font>
+           <item row="4" column="0">
+            <widget class="QComboBox" name="cmFieldEditType">
+             <property name="minimumSize">
+              <size>
+               <width>120</width>
+               <height>0</height>
+              </size>
              </property>
-             <property name="layoutDirection">
-              <enum>Qt::RightToLeft</enum>
-             </property>
-             <property name="text">
+             <item>
+              <property name="text">
+               <string>field name</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>address byte</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>address word</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>all</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string/>
+              </property>
+             </item>
+            </widget>
+           </item>
+           <item row="2" column="0" rowspan="2" colspan="2">
+            <widget class="QGroupBox" name="groupBox_2">
+             <property name="title">
               <string/>
              </property>
+             <layout class="QGridLayout" name="gridLayout_14">
+              <property name="leftMargin">
+               <number>1</number>
+              </property>
+              <property name="topMargin">
+               <number>1</number>
+              </property>
+              <property name="rightMargin">
+               <number>1</number>
+              </property>
+              <property name="bottomMargin">
+               <number>1</number>
+              </property>
+              <property name="spacing">
+               <number>1</number>
+              </property>
+              <item row="4" column="0">
+               <widget class="QCheckBox" name="cbTrim">
+                <property name="text">
+                 <string>trim</string>
+                </property>
+               </widget>
+              </item>
+              <item row="6" column="0">
+               <spacer name="verticalSpacer">
+                <property name="orientation">
+                 <enum>Qt::Vertical</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>20</width>
+                  <height>40</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item row="3" column="0">
+               <widget class="QCheckBox" name="cbDescr">
+                <property name="text">
+                 <string>descr</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="0">
+               <widget class="QCheckBox" name="cbPrintPath">
+                <property name="text">
+                 <string>path</string>
+                </property>
+               </widget>
+              </item>
+              <item row="5" column="0">
+               <widget class="QCheckBox" name="cbShowDiff">
+                <property name="text">
+                 <string>diff</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="0">
+               <widget class="QCheckBox" name="cbIgnoreSpareBits">
+                <property name="text">
+                 <string>no spare</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item row="3" column="2">
+            <widget class="OutputDataEditor" name="teResult">
+             <property name="minimumSize">
+              <size>
+               <width>400</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="verticalScrollBarPolicy">
+              <enum>Qt::ScrollBarAlwaysOn</enum>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="0" colspan="3">
+            <widget class="QWidget" name="widget_2" native="true">
+             <layout class="QGridLayout" name="gridLayout_4">
+              <property name="leftMargin">
+               <number>3</number>
+              </property>
+              <property name="topMargin">
+               <number>3</number>
+              </property>
+              <property name="rightMargin">
+               <number>3</number>
+              </property>
+              <property name="bottomMargin">
+               <number>3</number>
+              </property>
+              <property name="spacing">
+               <number>1</number>
+              </property>
+              <item row="1" column="6">
+               <spacer name="horizontalSpacer_2">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeType">
+                 <enum>QSizePolicy::Fixed</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>20</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item row="1" column="11">
+               <widget class="QLabel" name="label_13">
+                <property name="text">
+                 <string>filter</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="4" rowspan="2">
+               <spacer name="horizontalSpacer_4">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeType">
+                 <enum>QSizePolicy::Fixed</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>20</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item row="1" column="3">
+               <widget class="QComboBox" name="cmEditField">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>150</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>8</pointsize>
+                 </font>
+                </property>
+                <property name="editable">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="3">
+               <widget class="QLabel" name="lbFieldInfo">
+                <property name="minimumSize">
+                 <size>
+                  <width>80</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>16777215</width>
+                  <height>17</height>
+                 </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>6</pointsize>
+                 </font>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">color: rgb(95, 95, 95);</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="5">
+               <widget class="QLabel" name="lbValueFormat">
+                <property name="font">
+                 <font>
+                  <pointsize>6</pointsize>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>....</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="12">
+               <widget class="QLineEdit" name="leFilter">
+                <property name="maximumSize">
+                 <size>
+                  <width>200</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="5">
+               <widget class="LineEdit" name="leValue">
+                <property name="minimumSize">
+                 <size>
+                  <width>100</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string>0x00</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="12">
+               <widget class="QWidget" name="widget_4" native="true">
+                <layout class="QHBoxLayout" name="horizontalLayout_3">
+                 <property name="spacing">
+                  <number>1</number>
+                 </property>
+                 <property name="leftMargin">
+                  <number>3</number>
+                 </property>
+                 <property name="topMargin">
+                  <number>3</number>
+                 </property>
+                 <property name="rightMargin">
+                  <number>3</number>
+                 </property>
+                 <property name="bottomMargin">
+                  <number>3</number>
+                 </property>
+                </layout>
+               </widget>
+              </item>
+              <item row="0" column="10" rowspan="3">
+               <widget class="Line" name="line">
+                <property name="orientation">
+                 <enum>Qt::Vertical</enum>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="7" rowspan="3">
+               <widget class="QToolButton" name="tbEditFieldOper">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+                  <horstretch>1</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>80</width>
+                  <height>25</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string>...</string>
+                </property>
+                <property name="popupMode">
+                 <enum>QToolButton::MenuButtonPopup</enum>
+                </property>
+               </widget>
+              </item>
+             </layout>
             </widget>
            </item>
            <item row="1" column="0" colspan="3">
@@ -211,107 +514,51 @@
                <number>1</number>
               </property>
               <item>
-               <widget class="QPushButton" name="pbReloadFile">
-                <property name="toolTip">
-                 <string>Re-read file and apply to current structure</string>
-                </property>
+               <widget class="QLabel" name="label_2">
                 <property name="text">
-                 <string>Reload</string>
-                </property>
-                <property name="icon">
-                 <iconset theme="update">
-                  <normaloff>.</normaloff>.</iconset>
+                 <string>format</string>
                 </property>
                </widget>
               </item>
               <item>
-               <spacer name="horizontalSpacer_8">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
+               <widget class="QComboBox" name="cmBitRepr">
+                <property name="minimumSize">
                  <size>
-                  <width>40</width>
-                  <height>20</height>
+                  <width>150</width>
+                  <height>0</height>
                  </size>
                 </property>
-               </spacer>
-              </item>
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayout">
                 <item>
-                 <widget class="QLabel" name="label_2">
-                  <property name="text">
-                   <string>address format:</string>
-                  </property>
-                 </widget>
+                 <property name="text">
+                  <string>bit_number</string>
+                 </property>
                 </item>
                 <item>
-                 <widget class="QComboBox" name="cmBitRepr">
-                  <property name="minimumSize">
-                   <size>
-                    <width>150</width>
-                    <height>0</height>
-                   </size>
-                  </property>
-                  <item>
-                   <property name="text">
-                    <string>bit_number</string>
-                   </property>
-                  </item>
-                  <item>
-                   <property name="text">
-                    <string>byte_number</string>
-                   </property>
-                  </item>
-                  <item>
-                   <property name="text">
-                    <string>byte_number[bit offset]</string>
-                   </property>
-                  </item>
-                  <item>
-                   <property name="text">
-                    <string>w32_number[bit offset]</string>
-                   </property>
-                  </item>
-                 </widget>
+                 <property name="text">
+                  <string>byte_addr</string>
+                 </property>
                 </item>
                 <item>
-                 <widget class="QCheckBox" name="cbPrintPath">
-                  <property name="text">
-                   <string>print path</string>
-                  </property>
-                 </widget>
+                 <property name="text">
+                  <string>u8_addr[bit offset]</string>
+                 </property>
                 </item>
                 <item>
-                 <widget class="QCheckBox" name="cbIgnoreSpareBits">
-                  <property name="text">
-                   <string>ignore spare bits</string>
-                  </property>
-                 </widget>
+                 <property name="text">
+                  <string>w16_addr[bit_offset]</string>
+                 </property>
                 </item>
                 <item>
-                 <widget class="QCheckBox" name="cbDescr">
-                  <property name="text">
-                   <string>show descr</string>
-                  </property>
-                 </widget>
+                 <property name="text">
+                  <string>w32_addr[bit offset]</string>
+                 </property>
                 </item>
                 <item>
-                 <widget class="QCheckBox" name="cbTrim">
-                  <property name="text">
-                   <string>trim values</string>
-                  </property>
-                 </widget>
+                 <property name="text">
+                  <string>w128_addr[bit_offset]</string>
+                 </property>
                 </item>
-                <item>
-                 <widget class="QCheckBox" name="cbShowDiff">
-                  <property name="text">
-                   <string>show differencies</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
+               </widget>
               </item>
               <item>
                <spacer name="horizontalSpacer_5">
@@ -327,9 +574,25 @@
                </spacer>
               </item>
               <item>
-               <widget class="QLabel" name="label_3">
+               <widget class="QLabel" name="label_15">
                 <property name="text">
-                 <string>Save</string>
+                 <string/>
+                </property>
+                <property name="pixmap">
+                 <pixmap resource="regdecode.qrc">:/save.png</pixmap>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_7">
+                <property name="text">
+                 <string>save</string>
+                </property>
+                <property name="wordWrap">
+                 <bool>true</bool>
+                </property>
+                <property name="textInteractionFlags">
+                 <set>Qt::NoTextInteraction</set>
                 </property>
                </widget>
               </item>
@@ -366,9 +629,22 @@
                </spacer>
               </item>
               <item>
+               <widget class="QLabel" name="label_16">
+                <property name="text">
+                 <string/>
+                </property>
+                <property name="pixmap">
+                 <pixmap resource="regdecode.qrc">:/load.png</pixmap>
+                </property>
+               </widget>
+              </item>
+              <item>
                <widget class="QLabel" name="label_4">
                 <property name="text">
                  <string>Load</string>
+                </property>
+                <property name="textInteractionFlags">
+                 <set>Qt::NoTextInteraction</set>
                 </property>
                </widget>
               </item>
@@ -388,143 +664,166 @@
                 </property>
                </widget>
               </item>
+              <item>
+               <widget class="QPushButton" name="pbReloadDataFile">
+                <property name="maximumSize">
+                 <size>
+                  <width>100</width>
+                  <height>24</height>
+                 </size>
+                </property>
+                <property name="toolTip">
+                 <string>Re-read file and apply to current structure</string>
+                </property>
+                <property name="text">
+                 <string>...</string>
+                </property>
+                <property name="icon">
+                 <iconset resource="regdecode.qrc">
+                  <normaloff>:/refresh.png</normaloff>:/refresh.png</iconset>
+                </property>
+               </widget>
+              </item>
              </layout>
             </widget>
            </item>
-           <item row="2" column="0" colspan="3">
-            <widget class="QPlainTextEdit" name="teResult">
-             <property name="minimumSize">
-              <size>
-               <width>400</width>
-               <height>0</height>
-              </size>
+           <item row="4" column="2">
+            <widget class="QFrame" name="frame">
+             <property name="frameShape">
+              <enum>QFrame::StyledPanel</enum>
              </property>
-             <property name="verticalScrollBarPolicy">
-              <enum>Qt::ScrollBarAlwaysOn</enum>
+             <property name="frameShadow">
+              <enum>QFrame::Raised</enum>
              </property>
-            </widget>
-           </item>
-           <item row="5" column="1">
-            <widget class="QWidget" name="widget_2" native="true">
-             <layout class="QGridLayout" name="gridLayout_4">
+             <layout class="QGridLayout" name="gridLayout_13">
               <property name="leftMargin">
-               <number>3</number>
+               <number>1</number>
               </property>
               <property name="topMargin">
-               <number>3</number>
+               <number>1</number>
               </property>
               <property name="rightMargin">
-               <number>3</number>
+               <number>1</number>
               </property>
               <property name="bottomMargin">
-               <number>3</number>
+               <number>1</number>
               </property>
               <property name="spacing">
                <number>1</number>
               </property>
-              <item row="1" column="1">
-               <spacer name="horizontalSpacer_4">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeType">
-                 <enum>QSizePolicy::Fixed</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>20</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-              <item row="1" column="0">
-               <widget class="QComboBox" name="cmFieldEditType">
+              <item row="1" column="0" colspan="2">
+               <widget class="QLabel" name="lbFileInfo">
                 <property name="minimumSize">
                  <size>
-                  <width>120</width>
-                  <height>0</height>
+                  <width>50</width>
+                  <height>17</height>
                  </size>
-                </property>
-                <item>
-                 <property name="text">
-                  <string>field name</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>address byte</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>address word</string>
-                 </property>
-                </item>
-               </widget>
-              </item>
-              <item row="0" column="2" rowspan="2">
-               <widget class="QComboBox" name="cmEditField">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="font">
-                 <font>
-                  <pointsize>8</pointsize>
-                 </font>
-                </property>
-                <property name="editable">
-                 <bool>true</bool>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="10">
-               <widget class="QLineEdit" name="leFilter">
-                <property name="maximumSize">
-                 <size>
-                  <width>200</width>
-                  <height>16777215</height>
-                 </size>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="2">
-               <widget class="QLabel" name="lbFieldInfo">
-                <property name="minimumSize">
-                 <size>
-                  <width>80</width>
-                  <height>0</height>
-                 </size>
-                </property>
-                <property name="maximumSize">
-                 <size>
-                  <width>16777215</width>
-                  <height>25</height>
-                 </size>
-                </property>
-                <property name="font">
-                 <font>
-                  <pointsize>6</pointsize>
-                 </font>
                 </property>
                 <property name="styleSheet">
-                 <string notr="true">color: rgb(95, 95, 95);</string>
+                 <string notr="true"/>
                 </property>
                 <property name="text">
-                 <string/>
+                 <string>....</string>
                 </property>
                </widget>
               </item>
-              <item row="1" column="3">
-               <widget class="LineEdit" name="leValue">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
+              <item row="0" column="0">
+               <widget class="QWidget" name="wgFindText" native="true">
+                <layout class="QHBoxLayout" name="horizontalLayout_4">
+                 <property name="spacing">
+                  <number>1</number>
+                 </property>
+                 <property name="leftMargin">
+                  <number>1</number>
+                 </property>
+                 <property name="topMargin">
+                  <number>1</number>
+                 </property>
+                 <property name="rightMargin">
+                  <number>1</number>
+                 </property>
+                 <property name="bottomMargin">
+                  <number>1</number>
+                 </property>
+                 <item>
+                  <widget class="QLineEdit" name="leFindText"/>
+                 </item>
+                 <item>
+                  <widget class="QLabel" name="lbFindCount">
+                   <property name="minimumSize">
+                    <size>
+                     <width>80</width>
+                     <height>0</height>
+                    </size>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QCheckBox" name="cbCaseSens">
+                   <property name="toolTip">
+                    <string>Case insensitive</string>
+                   </property>
+                   <property name="text">
+                    <string>Aa</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="tab">
+          <attribute name="title">
+           <string>Source</string>
+          </attribute>
+          <layout class="QGridLayout" name="gridLayout_7">
+           <item row="1" column="0">
+            <widget class="QPlainTextEdit" name="teRegister">
+             <property name="styleSheet">
+              <string notr="true">background-color: rgb(245, 245, 245);</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="0">
+            <widget class="QToolButton" name="tbStructureButton">
+             <property name="minimumSize">
+              <size>
+               <width>100</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>...</string>
+             </property>
+             <property name="popupMode">
+              <enum>QToolButton::MenuButtonPopup</enum>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="tabTools">
+          <attribute name="title">
+           <string>Tools</string>
+          </attribute>
+          <layout class="QGridLayout" name="gridLayout_12">
+           <item row="0" column="0">
+            <widget class="QGroupBox" name="groupBox">
+             <property name="title">
+              <string>:::BIN/HEX file save :::</string>
+             </property>
+             <layout class="QGridLayout" name="gridLayout_6">
+              <item row="0" column="2">
+               <widget class="QComboBox" name="cmTrimLines">
+                <property name="enabled">
+                 <bool>true</bool>
                 </property>
                 <property name="minimumSize">
                  <size>
@@ -532,20 +831,20 @@
                   <height>0</height>
                  </size>
                 </property>
-                <property name="alignment">
-                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                </property>
+                <item>
+                 <property name="text">
+                  <string>Off</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>2048</string>
+                 </property>
+                </item>
                </widget>
               </item>
-              <item row="1" column="5">
-               <widget class="QPushButton" name="pbSetValue">
-                <property name="text">
-                 <string>Set</string>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="8" rowspan="2" colspan="2">
-               <spacer name="horizontalSpacer_3">
+              <item row="0" column="1">
+               <spacer name="horizontalSpacer">
                 <property name="orientation">
                  <enum>Qt::Horizontal</enum>
                 </property>
@@ -557,268 +856,353 @@
                 </property>
                </spacer>
               </item>
-              <item row="1" column="4">
-               <spacer name="horizontalSpacer_2">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeType">
-                 <enum>QSizePolicy::Fixed</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>20</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-              <item row="1" column="6">
-               <widget class="QPushButton" name="pbGetValue">
+              <item row="0" column="0">
+               <widget class="QLabel" name="label_5">
                 <property name="text">
-                 <string>Get</string>
+                 <string>trim lines for saved ASCII binary files</string>
                 </property>
                </widget>
               </item>
-              <item row="1" column="9">
-               <widget class="QPushButton" name="pbFilter">
+              <item row="1" column="0">
+               <widget class="QCheckBox" name="cbUseWindowsCRLF">
                 <property name="text">
-                 <string>filter</string>
+                 <string>use Windows CRLF for HEX</string>
                 </property>
                </widget>
               </item>
-              <item row="0" column="7" rowspan="3">
-               <widget class="Line" name="line">
-                <property name="orientation">
-                 <enum>Qt::Vertical</enum>
+              <item row="2" column="1">
+               <widget class="QLabel" name="label_8">
+                <property name="text">
+                 <string>default</string>
                 </property>
                </widget>
               </item>
-              <item row="2" column="10">
-               <widget class="QWidget" name="widget_4" native="true">
-                <layout class="QHBoxLayout" name="horizontalLayout_3">
-                 <property name="spacing">
-                  <number>1</number>
+              <item row="2" column="2">
+               <widget class="QComboBox" name="cmDefaultFieldValue">
+                <item>
+                 <property name="text">
+                  <string>Off</string>
                  </property>
-                 <property name="leftMargin">
-                  <number>3</number>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>all '0'</string>
                  </property>
-                 <property name="topMargin">
-                  <number>3</number>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>all '1'</string>
                  </property>
-                 <property name="rightMargin">
-                  <number>3</number>
-                 </property>
-                 <property name="bottomMargin">
-                  <number>3</number>
-                 </property>
-                 <item>
-                  <widget class="QPushButton" name="pbFill1">
-                   <property name="maximumSize">
-                    <size>
-                     <width>16777215</width>
-                     <height>17</height>
-                    </size>
-                   </property>
-                   <property name="text">
-                    <string>Fill '1'</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QPushButton" name="pbFill0">
-                   <property name="maximumSize">
-                    <size>
-                     <width>16777215</width>
-                     <height>17</height>
-                    </size>
-                   </property>
-                   <property name="text">
-                    <string>Fill '0'</string>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
+                </item>
                </widget>
               </item>
              </layout>
             </widget>
            </item>
-           <item row="0" column="0" colspan="2">
-            <widget class="QLabel" name="lbFileInfo">
-             <property name="minimumSize">
+           <item row="1" column="0">
+            <widget class="QGroupBox" name="cmCrcValue">
+             <property name="title">
+              <string notr="true">::: Calculate CRC :::</string>
+             </property>
+             <property name="flat">
+              <bool>false</bool>
+             </property>
+             <layout class="QGridLayout" name="gridLayout_9">
+              <item row="3" column="2" colspan="2">
+               <widget class="LineEdit" name="leCrcValue">
+                <property name="text">
+                 <string>0x00</string>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="0">
+               <widget class="QLabel" name="label_12">
+                <property name="text">
+                 <string>Value</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0">
+               <widget class="QLabel" name="label_10">
+                <property name="text">
+                 <string>To addr</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="0">
+               <widget class="QLabel" name="label_11">
+                <property name="text">
+                 <string>CRC</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="0">
+               <widget class="QLabel" name="label_9">
+                <property name="text">
+                 <string>From address</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <spacer name="horizontalSpacer_8">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item row="0" column="4">
+               <widget class="QLabel" name="label">
+                <property name="styleSheet">
+                 <string notr="true">color: rgb(255, 0, 0);</string>
+                </property>
+                <property name="text">
+                 <string>0x0000</string>
+                </property>
+               </widget>
+              </item>
+              <item row="5" column="4">
+               <widget class="QPushButton" name="pbSetCrc">
+                <property name="text">
+                 <string>Set</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="2" colspan="2">
+               <widget class="QComboBox" name="cmCrcAdrFrom">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="2" colspan="3">
+               <widget class="QComboBox" name="cmCrcMethod">
+                <item>
+                 <property name="text">
+                  <string>poly 0x04C11DB7</string>
+                 </property>
+                </item>
+               </widget>
+              </item>
+              <item row="1" column="4">
+               <widget class="QLabel" name="label_3">
+                <property name="styleSheet">
+                 <string notr="true">color: rgb(255, 0, 0);</string>
+                </property>
+                <property name="text">
+                 <string>0x1ff0</string>
+                </property>
+               </widget>
+              </item>
+              <item row="5" column="2" colspan="2">
+               <widget class="QComboBox" name="cmCrcField">
+                <property name="minimumSize">
+                 <size>
+                  <width>150</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <item>
+                 <property name="text">
+                  <string>DEVCFG_CRC32</string>
+                 </property>
+                </item>
+               </widget>
+              </item>
+              <item row="3" column="4">
+               <widget class="QPushButton" name="pbCrcCalc">
+                <property name="text">
+                 <string>calc</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="2" colspan="2">
+               <widget class="QComboBox" name="cmCrcAdrTo">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+               </widget>
+              </item>
+              <item row="6" column="2">
+               <spacer name="verticalSpacer_3">
+                <property name="orientation">
+                 <enum>Qt::Vertical</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>20</width>
+                  <height>40</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <spacer name="verticalSpacer_2">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
               <size>
-               <width>50</width>
-               <height>0</height>
+               <width>20</width>
+               <height>40</height>
               </size>
              </property>
-             <property name="font">
-              <font>
-               <pointsize>6</pointsize>
-              </font>
+            </spacer>
+           </item>
+           <item row="0" column="1" rowspan="2">
+            <widget class="QGroupBox" name="groupBox_3">
+             <property name="title">
+              <string>::: Export to C header :::</string>
              </property>
-             <property name="text">
-              <string/>
-             </property>
+             <layout class="QGridLayout" name="gridLayout_5">
+              <item row="2" column="0" colspan="3">
+               <widget class="QPlainTextEdit" name="teCFileHeader">
+                <property name="styleSheet">
+                 <string notr="true">font: 8pt &quot;Consolas&quot;;</string>
+                </property>
+                <property name="plainText">
+                 <string>/*
+ * Copyright @year NXP
+ * All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+</string>
+                </property>
+               </widget>
+              </item>
+              <item row="8" column="1">
+               <widget class="QCheckBox" name="cbDescriptionComment">
+                <property name="text">
+                 <string>add description</string>
+                </property>
+                <property name="checkable">
+                 <bool>true</bool>
+                </property>
+                <property name="checked">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item row="5" column="0">
+               <widget class="QLabel" name="label_18">
+                <property name="text">
+                 <string>Map name</string>
+                </property>
+               </widget>
+              </item>
+              <item row="6" column="0">
+               <widget class="QLabel" name="label_17">
+                <property name="text">
+                 <string>Map base adress</string>
+                </property>
+               </widget>
+              </item>
+              <item row="5" column="1">
+               <widget class="QLineEdit" name="leCFileMapName">
+                <property name="text">
+                 <string>IFR</string>
+                </property>
+               </widget>
+              </item>
+              <item row="6" column="1">
+               <widget class="LineEdit" name="leCFileMapBaseAddr">
+                <property name="text">
+                 <string>0x0</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0" colspan="2">
+               <widget class="QLabel" name="lbCFileHeader">
+                <property name="text">
+                 <string>Header</string>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="0" colspan="3">
+               <widget class="QPlainTextEdit" name="teCFileBitFieldOper">
+                <property name="styleSheet">
+                 <string notr="true">font: 8pt &quot;Consolas&quot;;</string>
+                </property>
+                <property name="lineWrapMode">
+                 <enum>QPlainTextEdit::NoWrap</enum>
+                </property>
+                <property name="plainText">
+                 <string notr="true">#define FIELD_MASK(MSB, LSB) (0xffffffff &gt;&gt; (32 - ((MSB) - (LSB) + 1)))
+#define FIELD_VALUE(BASE, MSB, LSB) (*((uint32_t *)(BASE)) &gt;&gt; (LSB)&amp;FIELD_MASK((MSB), (LSB)))
+#define FIELD_SET_VALUE(BASE, MSB, LSB, VAL)                                  \
+    do                                                                        \
+    {                                                                         \
+        *((uint32_t *)(BASE)) &amp;= ~(FIELD_MASK((MSB), (LSB)) &lt;&lt; (LSB));        \
+        *((uint32_t *)(BASE)) |= (FIELD_MASK((MSB), (LSB)) &amp; (VAL)) &lt;&lt; (LSB); \
+    } while (0);
+</string>
+                </property>
+               </widget>
+              </item>
+              <item row="7" column="0">
+               <widget class="QLabel" name="label_19">
+                <property name="text">
+                 <string>File</string>
+                </property>
+               </widget>
+              </item>
+              <item row="11" column="1">
+               <widget class="QPushButton" name="pbExporToCode">
+                <property name="text">
+                 <string>export to *.h</string>
+                </property>
+               </widget>
+              </item>
+              <item row="7" column="1" colspan="2">
+               <widget class="QLineEdit" name="leCFileExportFile"/>
+              </item>
+              <item row="11" column="0">
+               <widget class="QComboBox" name="cmCFileFormat">
+                <item>
+                 <property name="text">
+                  <string>IFR0-32 bit</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>IFR1-128 bit</string>
+                 </property>
+                </item>
+               </widget>
+              </item>
+              <item row="8" column="0">
+               <widget class="QCheckBox" name="cbFileCIgnoreSpare">
+                <property name="text">
+                 <string>no spare</string>
+                </property>
+                <property name="checked">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="0">
+               <widget class="QCheckBox" name="cbBitfieldOperationEnable">
+                <property name="text">
+                 <string>BitField operation</string>
+                </property>
+                <property name="checked">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+             </layout>
             </widget>
            </item>
           </layout>
-         </widget>
-         <widget class="QWidget" name="tabTools">
-          <attribute name="title">
-           <string>Tools</string>
-          </attribute>
-          <widget class="QGroupBox" name="groupBox">
-           <property name="geometry">
-            <rect>
-             <x>10</x>
-             <y>10</y>
-             <width>361</width>
-             <height>91</height>
-            </rect>
-           </property>
-           <property name="title">
-            <string>:::BIN/HEX file save :::</string>
-           </property>
-           <layout class="QGridLayout" name="gridLayout_6">
-            <item row="0" column="2">
-             <widget class="QComboBox" name="cmTrimLines">
-              <property name="enabled">
-               <bool>true</bool>
-              </property>
-              <property name="minimumSize">
-               <size>
-                <width>100</width>
-                <height>0</height>
-               </size>
-              </property>
-              <item>
-               <property name="text">
-                <string>2048</string>
-               </property>
-              </item>
-             </widget>
-            </item>
-            <item row="0" column="0">
-             <widget class="QLabel" name="label_5">
-              <property name="text">
-               <string>trim lines for saved ASCII binary files</string>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="0">
-             <widget class="QCheckBox" name="cbUseWindowsCRLF">
-              <property name="text">
-               <string>use Windows CRLF for HEX</string>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="1">
-             <spacer name="horizontalSpacer">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>40</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-           </layout>
-          </widget>
-          <widget class="QGroupBox" name="groupBox_3">
-           <property name="geometry">
-            <rect>
-             <x>380</x>
-             <y>10</y>
-             <width>481</width>
-             <height>91</height>
-            </rect>
-           </property>
-           <property name="title">
-            <string>::: Export to C header :::</string>
-           </property>
-           <layout class="QGridLayout" name="gridLayout_5">
-            <item row="0" column="0">
-             <widget class="QLineEdit" name="leExportFile"/>
-            </item>
-            <item row="0" column="1">
-             <widget class="QPushButton" name="pbExporToCode">
-              <property name="text">
-               <string>export to *.h</string>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="0">
-             <widget class="QCheckBox" name="cbDescriptionComment">
-              <property name="text">
-               <string>description</string>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="1">
-             <widget class="QPushButton" name="pushButton">
-              <property name="text">
-               <string>test</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-          <widget class="QWidget" name="layoutWidget_2">
-           <property name="geometry">
-            <rect>
-             <x>490</x>
-             <y>310</y>
-             <width>471</width>
-             <height>16</height>
-            </rect>
-           </property>
-           <layout class="QHBoxLayout" name="horizontalLayout_5">
-            <item>
-             <widget class="QLabel" name="label_6">
-              <property name="maximumSize">
-               <size>
-                <width>16777215</width>
-                <height>15</height>
-               </size>
-              </property>
-              <property name="font">
-               <font>
-                <pointsize>8</pointsize>
-                <weight>75</weight>
-                <bold>true</bold>
-               </font>
-              </property>
-              <property name="styleSheet">
-               <string notr="true">color: rgb(170, 170, 127);</string>
-              </property>
-              <property name="text">
-               <string>size</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QLabel" name="lbDataSize_2">
-              <property name="maximumSize">
-               <size>
-                <width>16777215</width>
-                <height>15</height>
-               </size>
-              </property>
-              <property name="styleSheet">
-               <string notr="true">background-color: rgb(229, 229, 229);
-color: rgb(95, 95, 95);</string>
-              </property>
-              <property name="text">
-               <string/>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
          </widget>
          <widget class="QWidget" name="tabHelp">
           <attribute name="title">
@@ -834,30 +1218,30 @@ color: rgb(95, 95, 95);</string>
               <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;h2 style=&quot; margin-top:16px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Consolas'; font-size:x-large; font-weight:600;&quot;&gt;Vaiables&lt;/span&gt;&lt;span style=&quot; font-size:x-large; font-weight:600;&quot;&gt; &lt;/span&gt;&lt;/h2&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;name/field &lt;/span&gt;– name of field &lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;descr &lt;/span&gt;– description text &lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;offset &lt;/span&gt;– offset in data &lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;value &lt;/span&gt;– field or bit value (true/false, 123, 0xabc) up to 32 bits &lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;repr &lt;/span&gt;– is representation with tags &lt;span style=&quot; font-weight:600;&quot;&gt; &lt;/span&gt; &lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;dict&lt;/span&gt; - dictionary&lt;/p&gt;
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;h2 style=&quot; margin-top:16px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Consolas'; font-size:8pt; font-weight:600;&quot;&gt;Vaiables&lt;/span&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt; &lt;/span&gt;&lt;/h2&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;name/field &lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;– name of field &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;descr &lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;– description text &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;offset &lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;– offset in data &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;value &lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;– field or bit value (true/false, 123, 0xabc) up to 32 bits &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;repr &lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;– is representation with tags &lt;/span&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt; &lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;dict&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; - dictionary&lt;/span&gt;&lt;/p&gt;
 &lt;h2 style=&quot; margin-top:16px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Consolas'; font-size:18pt; font-weight:600;&quot;&gt;Representation TAGs&lt;/span&gt;&lt;span style=&quot; font-size:18pt; font-weight:600;&quot;&gt; &lt;/span&gt;&lt;/h2&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;name&lt;/span&gt; - full name with range or size 'field[10]'  means field with size 10 bits &lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;offset-name - &lt;/span&gt;full name with range or size 'field[10]' and field with bit number&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;purename&lt;/span&gt; - pure name just name without range or size &lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;hexbyte&lt;/span&gt; - hex byte array '05ABC5...' &lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;ascii&lt;/span&gt; - ascii text &lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;hex-value&lt;/span&gt; - HEX number Ex.'0x89A' &lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;dec-value&lt;/span&gt; - Decimal value&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;value&lt;/span&gt; - decimal value &lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;binstring&lt;/span&gt; - binary string Ex.'101011100..' &lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;offset&lt;/span&gt; - offset from the begining (in bits) &lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;range&lt;/span&gt; - range Ex '[31:7]'  &lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;descr&lt;/span&gt; - description &lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;extras&lt;/span&gt; - extras list   &lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;rdonly&lt;/span&gt; - if read only &lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;color&lt;/span&gt; - background color&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;p style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;name&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; - full name with range or size 'field[10]'  means field with size 10 bits &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;offset-name - &lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;full name with range or size 'field[10]' and field with bit number&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;purename&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; - pure name just name without range or size &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;hexbyte&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; - hex byte array '05ABC5...' &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;ascii&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; - ascii text &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;hex-value&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; - HEX number Ex.'0x89A' &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;dec-value&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; - Decimal value&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;value&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; - decimal value &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;binstring&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; - binary string Ex.'101011100..' &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;offset&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; - offset from the begining (in bits) &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;range&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; - range Ex '[31:7]'  &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;descr&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; - description &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;extras&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; - extras list   &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;rdonly&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; - if read only &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;color&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; - background color&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
              </property>
             </widget>
            </item>
@@ -869,8 +1253,14 @@ p, li { white-space: pre-wrap; }
      </widget>
     </item>
     <item row="0" column="0">
-     <widget class="QWidget" name="widget_6" native="true">
-      <layout class="QHBoxLayout" name="horizontalLayout_4">
+     <widget class="QGroupBox" name="groupBox_4">
+      <property name="title">
+       <string>::: Structure file:::</string>
+      </property>
+      <property name="flat">
+       <bool>false</bool>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout">
        <property name="spacing">
         <number>3</number>
        </property>
@@ -887,6 +1277,16 @@ p, li { white-space: pre-wrap; }
         <number>3</number>
        </property>
        <item>
+        <widget class="QLabel" name="label_14">
+         <property name="text">
+          <string/>
+         </property>
+         <property name="pixmap">
+          <pixmap resource="regdecode.qrc">:/structure.png</pixmap>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QComboBox" name="cmStructure">
          <property name="minimumSize">
           <size>
@@ -898,14 +1298,15 @@ p, li { white-space: pre-wrap; }
        </item>
        <item>
         <widget class="QPushButton" name="pbReload">
-         <property name="maximumSize">
-          <size>
-           <width>30</width>
-           <height>16777215</height>
-          </size>
+         <property name="toolTip">
+          <string>reload structure file</string>
          </property>
          <property name="text">
-          <string>*</string>
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset resource="regdecode.qrc">
+           <normaloff>:/refresh.png</normaloff>:/refresh.png</iconset>
          </property>
         </widget>
        </item>
@@ -913,12 +1314,6 @@ p, li { white-space: pre-wrap; }
         <widget class="QPushButton" name="pbApply">
          <property name="enabled">
           <bool>false</bool>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>80</width>
-           <height>16777215</height>
-          </size>
          </property>
          <property name="text">
           <string>apply</string>
@@ -929,6 +1324,17 @@ p, li { white-space: pre-wrap; }
         <widget class="QPushButton" name="pushButton_2">
          <property name="text">
           <string>clear</string>
+         </property>
+         <property name="icon">
+          <iconset resource="regdecode.qrc">
+           <normaloff>:/clear.png</normaloff>:/clear.png</iconset>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="pushButton">
+         <property name="text">
+          <string>PushButton</string>
          </property>
         </widget>
        </item>
@@ -946,39 +1352,24 @@ p, li { white-space: pre-wrap; }
         </spacer>
        </item>
        <item>
-        <widget class="QLabel" name="label">
+        <widget class="QPushButton" name="pbConsole">
          <property name="text">
-          <string>structure file</string>
+          <string/>
          </property>
-         <property name="scaledContents">
-          <bool>false</bool>
+         <property name="icon">
+          <iconset resource="regdecode.qrc">
+           <normaloff>:/console.png</normaloff>:/console.png</iconset>
          </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QToolButton" name="tbStructureButton">
-         <property name="minimumSize">
-          <size>
-           <width>100</width>
-           <height>25</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>80</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="text">
-          <string>...</string>
-         </property>
-         <property name="popupMode">
-          <enum>QToolButton::MenuButtonPopup</enum>
+         <property name="checkable">
+          <bool>true</bool>
          </property>
         </widget>
        </item>
       </layout>
      </widget>
+    </item>
+    <item row="2" column="0">
+     <widget class="QPlainTextEdit" name="teConsole"/>
     </item>
    </layout>
   </widget>
@@ -989,7 +1380,14 @@ p, li { white-space: pre-wrap; }
    <extends>QLineEdit</extends>
    <header>lineedit.h</header>
   </customwidget>
+  <customwidget>
+   <class>OutputDataEditor</class>
+   <extends>QPlainTextEdit</extends>
+   <header>outputdataeditor.h</header>
+  </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="regdecode.qrc"/>
+ </resources>
  <connections/>
 </ui>

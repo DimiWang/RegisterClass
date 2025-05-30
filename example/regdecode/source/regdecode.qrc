@@ -1,3 +1,12 @@
 <RCC>
     <qresource prefix="/formats"/>
+    <qresource prefix="/">
+        <file>refresh.png</file>
+        <file>load.png</file>
+        <file>save.png</file>
+        <file>structure.png</file>
+        <file>clear.png</file>
+        <file>console.png</file>
+        <file>console_i.png</file>
+    </qresource>
 </RCC>

@@ -8,6 +8,7 @@
 #include <QList>
 #include <QListWidgetItem>
 #include <QSpacerItem>
+#include <QTextCursor>
 
 typedef enum {
     AS_CHANGED,
@@ -25,13 +26,16 @@ class MainWindow : public QMainWindow
 
 public:
     typedef enum {
-        DataFormatUnknown,
-        DataFormatAsBinary,
-        DataFormatAsU8,
-        DataFormatAsVMEM,
-        DataFormatAsU32,
-        DataFormatAsLIST,
+        DataFormatUnknown=-1,
+        DataFormatAsU32=0,
+        DataFormatAsU8=1,
+        DataFormatAsVMEM=2,
+        DataFormatAsLIST=3,
+        DataFormatAsBinary=4,
+        DataFormatAsCDE=5,
+        DataFormatAsCCODE=6,
     }DataFormat;
+    static const char * m_data_formats[];
 
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
@@ -47,25 +51,41 @@ public:
     bool loadStructureFile(const QString &filename);
     void applyStructure();
 
-    void getSelectedFieldValue();
-    void setSelectedFieldValue();
-    void buildEditFieldList();
+
     void updateFileNameTitle();
 
     bool loadData(const QString &file_name, DataFormat format);
     bool saveData(const QString &file_name, DataFormat format);
 
     // export to H
-    void generateClassicH(const QString &filename);
-    void generateBitFieldH(const QString &filename);
-    void generateVariant3_H(const QString &filename);
+//    void generateClassicH(const QString &filename);
+//    void generateBitFieldH(const QString &filename);
+    void generateIfrMap(const QString &filename);
+    void editBitField(const QString &field_name);
+    bool saveHeaderFile(const QString &filename, const QString &header, const QString &bitfields);
 
 
 Q_SIGNALS:
     void update_ui();
+    void update_ui_controls();
+    void dummyMsg(QString);
+    void sig_updateConsoleIcon();
 
 private slots:
+    void selectEditFields(const QStringList &list);
+    void fillMap1();
+    void fillMap0();
+    void getSelectedFieldValue();
+    void setSelectedFieldValue();
+    void buildEditFieldList();
+    void updateEditFieldFormat(const QString &format);
+    void findTextItem_InMap(const QString &text);
+    void updateConsoleIcon();
+    void warning(const QString &);
+    void error(const QString &);
+
     void updateItemsList();
+    void updateUiControls();
 
     void saveStructureFile();
     void saveAsStructureFile();
@@ -75,22 +95,23 @@ private slots:
     void loadFileAsVMEM();
     void loadFileAsU32();
     void loadFileAsBin();
+    void loadFileAsCde();
 
     void saveFileAsList();
     void saveFileAsU8();
     void saveFileAsVMEM();
     void saveFileAsU32();
     void saveFileAsBin();
+    void saveFileAsCde();
+    void saveFileAsCCode();
+
+    void updateTools();
 
     void update_output();    
     void removeStructureFile();
     void field_label_double_click(const QString &link);
 
-    void on_pbApply_clicked();    
-
-    void on_pbSetValue_clicked();
-
-    void on_pbFill1_clicked();
+    void on_pbApply_clicked();        
 
     void on_cbTrim_toggled(bool checked);
 
@@ -104,27 +125,19 @@ private slots:
 
     void on_cbUseWindowsCRLF_toggled(bool checked);
 
-    void on_pbReloadFile_clicked();    
+    void on_pbReloadDataFile_clicked();    
 
-    void on_pbFill0_clicked();
-
-    void on_cmBitRepr_currentIndexChanged(int index);
-
-    void on_pbFilter_clicked();
+    void on_cmBitRepr_currentIndexChanged(int index);    
 
     void on_leFilter_editingFinished();
 
     void on_pbReload_clicked();
 
-    void on_pbGetValue_clicked();
-
     void on_pbExporToCode_clicked();
 
     void on_pushButton_clicked();    
 
-    void on_cmFieldEditType_currentIndexChanged(int index);
-
-    void on_cmFieldEditType_activated(int index);
+    void on_cmFieldEditType_currentIndexChanged(int index);    
 
     void on_cbIgnoreSpareBits_toggled(bool checked);
 
@@ -136,47 +149,73 @@ private slots:
 
     void on_cbPrintPath_toggled(bool checked);
 
+    void on_cbShowDiff_toggled(bool checked);
+
+    void on_pbCrcCalc_clicked();
+
+    void on_pbSetCrc_clicked();
+
+    void on_leFilter_returnPressed();
+
+    void on_pbConsole_toggled(bool checked);
+
+    void on_cmDefaultFieldValue_currentIndexChanged(int index);
+
+    void on_pbConsole_clicked();
+
+    void on_leFindText_textChanged(const QString &arg1);
+
+    void on_cbCaseSens_toggled(bool checked);
+
+    void on_cbBitfieldOperationEnable_toggled(bool checked);
+
+    void on_leValue_returnPressed();
+
 protected:
     void closeEvent(QCloseEvent *ev);
+    void keyPressEvent(QKeyEvent *const event);
 
 private:
-    bool openExcel(const QString &filename);
-    int selectFieldsByPath(const QString &path, QStringList *fields);
-    MemoryMap m_map;
-    QList<QGroupBox *> m_field_labels;//??
+    QStringList m_filteredFieldsList;
     typedef struct{
         BitField *bitField;
         quint32 byteAddr;
         quint32 offset;
     }BitFieldInfo;
-    QMap<QString, QList<BitFieldInfo>> m_memory_map_fields;
+
+    typedef QMap<QString, QList<BitFieldInfo>> MemoryMapPaths_t;
+    quint32 pathSize();
+
+    bool openExcel(const QString &filename);
+    int selectFieldsByPath(const QString &path, QStringList *fields);
+    void generateMemoryMapPaths(QMap<QString, QList<BitFieldInfo>> *map_fields, int path_size);
+
+    MemoryMap m_map;
+    QList<QGroupBox *> m_field_labels;//??
+
+    QMap<QString, QList<BitFieldInfo>> m_map_paths;
+    QTextCursor m_backup_cursor;
+    int m_cursor_position;
+    void findTextInData();
 
     bool m_settings_ascii_windows;
     QSpacerItem  *m_ui_spacer;
     QLabel* makeFieldLabel(const BitFieldInfo &fi);
     void clearFieldLabels();
-
-    QAction *actSaveDataFileAsU32;
-    QAction *actSaveDataFileAsU8;
-    QAction *actSaveDataFileAsVMEM;
-    QAction *actSaveDataFileAsList;
-    QAction *actSaveDataFileAsBin;
-
-    QAction *actLoadDataFileAsU32;
-    QAction *actLoadDataFileAsU8;
-    QAction *actLoadDataFileAsVMEM;
-    QAction *actLoadDataFileAsList;
-    QAction *actLoadDataFileAsBin;
+    void setupActions();
+    QAction *actionByName(const QString &oper,const QString &action_name);
+    QAction *actLoadFileAsList[10];
+    QAction *actSaveFileAsList[10];
 
     QAction *actStructFileSave;
     QAction *actStructFileSaveAs;
     QAction *actStructFileRemove;
 
     QHash<QString,QString> m_recent_files;
-    QString m_format_file_path;
+    QString m_structure_file_path;
     QString m_data_file_path;
     DataFormat m_data_file_format;
-
+    void setLastDataFile(DataFormat format, const QString &filename);
     Ui::MainWindow *ui;
     QString representFieldAsString(Register *preg, BitField *f, Represent represent);
     QString buildJson();
@@ -185,3 +224,4 @@ private:
     //QString parseRegChangedParams();
 };
 #endif // MAINWINDOW_H
+

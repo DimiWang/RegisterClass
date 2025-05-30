@@ -1,6 +1,6 @@
 #include <windows.h>
 
-IDI_ICON1	ICON	DISCARDABLE	"C:\\Users\\nxf98224\\ROMS\\Testing\\mcu-boot-test-analysis\\Scripts\\bitfield\\tools\\regdecode\\regdecode.ico"
+IDI_ICON1	ICON	DISCARDABLE	"C:\\Users\\nxf98224\\OneDrive - NXP\\ROMS\\Testing\\mcu-boot-test-analysis\\Scripts\\4_regdecode\\source\\regdecode.ico"
 
 VS_VERSION_INFO VERSIONINFO
 	FILEVERSION 0,0,0,0

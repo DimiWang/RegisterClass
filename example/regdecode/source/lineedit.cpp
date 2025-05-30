@@ -2,7 +2,7 @@
 #include <QApplication>
 #include <QMenu>
 #include <QContextMenuEvent>
-
+#include <QDebug>
 
 LineEdit::LineEdit(QWidget *p): QLineEdit(p)
 {
@@ -24,14 +24,29 @@ LineEdit::~LineEdit(){}
 
 void LineEdit::setValue(quint32 v)
 {    
-    m_textMode = false;
+    m_text_mode = false;
     setAlignment(Qt::AlignRight);
     blockSignals(1);
     m_value = v;
     QLineEdit::setText( toText(v));
     blockSignals(0);
     m_state.changed = 0;
-    emit updateState();
+    emit updateState(); 
+
+    if(m_text_mode)
+        {
+        emit formatChanged("text");
+        }
+    else
+    {
+        if(m_input_base == 16)
+        {emit formatChanged("hex");}
+        else if(m_input_base == 2)
+        {emit formatChanged("bin");}
+        else if(m_input_base == 10)
+        {emit formatChanged("dec");}
+    }
+
 }
 
 quint32 LineEdit::value() const
@@ -41,9 +56,9 @@ quint32 LineEdit::value() const
 
 void LineEdit::setInputBase(int input_base)
 {
-    quint32 v =  value();
+    quint32 v =  value();    
     m_input_base = input_base;
-    setValue(v);
+    setValue(v);    
 }
 
 
@@ -81,7 +96,7 @@ void LineEdit::contextMenuEvent(QContextMenuEvent *event)
     actionHex->setCheckable(true);
     actionBin->setCheckable(true);
     actionText->setCheckable(true);
-    if(m_textMode){
+    if(m_text_mode){
         actionText->setChecked(1);
     }
     else{
@@ -100,7 +115,7 @@ void LineEdit::contextMenuEvent(QContextMenuEvent *event)
 
     menu.exec(event->globalPos());
     if (actionText->isChecked()){
-        m_textMode =  true;
+        m_text_mode =  true;
         setAlignment(Qt::AlignLeft);
     }
     else{
@@ -154,9 +169,12 @@ void LineEdit::keyPressEvent(QKeyEvent *pev)
 
 void LineEdit::slot_TextChanged()
 {
-    if(checkInputValue(&m_input_base)){
+    if( checkInputValue(&m_input_base)){
         m_state.error =0;
-    }else m_state.error =1;
+    }else if(!m_text_mode)
+    {
+        m_state.error =1;
+    }
 
     m_state.changed =1;
     emit updateState();
@@ -183,9 +201,12 @@ bool LineEdit::event(QEvent *e)
 
 void LineEdit::setText(const QString &text)
 {
-    m_textMode = true;
+    const bool changed= !m_text_mode;
+    m_text_mode = true;
+    if(changed ) {emit formatChanged("text");}
     setAlignment(Qt::AlignLeft);
     QLineEdit::setText(text);
+
 }
 
 void LineEdit::slot_triggered(){
@@ -198,8 +219,16 @@ void LineEdit::slot_triggered(){
 }
 
 void LineEdit::setErrorState(bool on){
-    m_state.error = on;
-    emit updateState();
+    if(!m_text_mode){
+        m_state.error = on;
+        emit updateState();
+    }
+}
+
+void LineEdit::setEditTextMode(bool enable)
+{
+    m_text_mode = enable;
+    setText("0000...");
 }
 
 bool LineEdit::checkInputValue(qint32 *base)
@@ -227,6 +256,8 @@ bool LineEdit::checkInputValue(qint32 *base)
 
 QString LineEdit::toText(quint32 val)
 {
+
+
     switch(m_input_base)
     {
     case 16:
@@ -243,7 +274,6 @@ QString LineEdit::toText(quint32 val)
 
 quint32 LineEdit::fromText(const QString &text)
 {
-
     if(text.startsWith("0x")) {
         return (double)text.mid(2).toUInt(0, inputBase());
     }

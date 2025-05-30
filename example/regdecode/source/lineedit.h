@@ -33,11 +33,14 @@ public:
     void setArray(const QByteArray &data);
     void setErrorState(bool on);
     bool errorState() const { return m_state.error ;}
+    void setEditTextMode(bool enable);
 
 signals:
     void signal_activated();
     void  focusIn();
     void  focusOut();
+    void formatChanged(QString);
+    void updateState();
 
 protected:
     struct {
@@ -53,7 +56,7 @@ protected:
 
 
     qint32 m_input_base;
-    bool m_textMode;
+    bool m_text_mode;
     bool m_allowUpdate;
     quint32 m_value;
     bool checkInputValue(qint32 *base);
@@ -69,8 +72,7 @@ protected:
     bool isEdited()const {return m_state.changed ;}
     void construct();
     bool event(QEvent *e);
-signals:
-   void updateState();
+
 
 public Q_SLOTS:
     void setText(const QString &);

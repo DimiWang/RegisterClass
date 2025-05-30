@@ -116,8 +116,7 @@ bool Register::parseJsonObjectAsOptions(const QJsonObject &field_obj, quint32 *o
     QHash<QString,QVariant> options_map;
 
     //mandatory field
-    if(available_keys.contains("options")){
-    qDebug()<<"options";
+    if(available_keys.contains("options")){    
     // start to create a field and give a name
     const QJsonObject dict_obj = field_obj["options"].toObject();
         options_map = dict_obj.toVariantHash();
@@ -187,7 +186,10 @@ bool Register::parseJsonObjectAsField(const QJsonObject &field_obj, quint32 opti
             moveOffset(offset&0xffff);
 
         }else{
-            WARNING(QString("Can't make offset %1").arg(field_obj["offset"].toString()));
+            WARNING(QString("Can't make offset %1 size =%2(0x%3)")
+                    .arg(offset)
+                    .arg(size()).arg(size())
+                    );
         }
 
         // this key is processed remove it from list
@@ -201,16 +203,18 @@ bool Register::parseJsonObjectAsField(const QJsonObject &field_obj, quint32 opti
 
     // on AllowSame name when we add bits to existing
     if( options &AllowSameName){
-        if(name_exist)
+        if(name_exist){
             f = field(parser.name());
-        else
+        }
+        else{
             //first field when AllowSameName mode
             f = BitField::makeField(field_name, &parser);
+        }
     }
 
     // always make a new field but rename if exist
-    else{
-        f = BitField::makeField(field_name, &parser);
+    else{        
+        f = BitField::makeField(field_name, &parser);        
         // make another field with the same name
         int i=0;
         if(name_exist){
@@ -262,7 +266,7 @@ bool Register::parseJsonObjectAsField(const QJsonObject &field_obj, quint32 opti
             }
             available_keys.removeFirst();
         }//while
-        addField(f);
+        addField(f);        
         return true;
     }
     return false;
@@ -271,7 +275,7 @@ bool Register::parseJsonObjectAsField(const QJsonObject &field_obj, quint32 opti
 bool Register::validateName(const QString &name)
 {
     QRegExp rx1("^[a-zA-Z_][a-zA-Z0-9_\\.]*$");
-    QRegExp rx2("^[a-zA-Z_][a-zA-Z0-9_\\.]*\\[[Bx0-9\\:]*\\]$");
+    QRegExp rx2("^[a-zA-Z_][a-zA-Z0-9_\\.]*\\[[Bxa-fA-FA0-9\\:]*\\]$");
     return rx1.exactMatch(name) || rx2.exactMatch(name);
 }
 
@@ -280,10 +284,16 @@ bool Register::loadJsonData(const QByteArray &json_data, quint32 options )
     QJsonParseError parseError;
     QJsonDocument jsonDoc = QJsonDocument::fromJson(json_data, &parseError);
     if(parseError.error != QJsonParseError::NoError){
-        WARNING(QString("Parse error at %1:%2").arg(parseError.offset).arg(parseError.errorString()));
-        qDebug()<<QString("Parse error at %1:%2").arg(parseError.offset).arg(parseError.errorString());
+        WARNING(QString("Parse error at %1:%2<br>%4:  ...%3...")
+                    .arg(parseError.offset)
+                    .arg(parseError.errorString())
+                    .arg(QString(json_data.mid(((parseError.offset>=10)?parseError.offset:0)-10,20)))
+                    .arg(QString("Line[%1]").arg(json_data.mid(0,parseError.offset).count("\n")+1))
+                );
+        qDebug()<<QString("Parse error at %1:%2").arg(parseError.offset)
+                  .arg(parseError.errorString());
         return false;
-    }
+    }    
     QHash<QString, QVariant> dictionary;
 
     const QJsonArray fields_array = jsonDoc.array();
@@ -335,9 +345,10 @@ void Register::cond_update(bool changed)
 
 bool Register::addField(const QString &fieldname, quint32 options)
 {
-    int result=0;
-    if(!fieldname.isEmpty())
+    bool result=false;
+    if(!fieldname.isEmpty() && validateName(fieldname))
     {
+        result = true;
         BitField::Parser parser(fieldname.toLatin1().constData());
         BitField *f = BitField::makeField(fieldname, &parser);
 
@@ -360,8 +371,9 @@ bool Register::addField(const QString &fieldname, quint32 options)
         emit changed();
     }
 
-    if( !result )
+    if( !result ){
         WARNING(QString("ERROR:%1").arg(fieldname));
+    }
 
     return result;
 }

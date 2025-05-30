@@ -24,19 +24,23 @@ Debug:UI_DIR =      $${PWD}/../bin/debug/.ui
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    crc32.c \
     ccodegen.cpp \
     dlgfield.cpp \
     lineedit.cpp \
     main.cpp \
     mainwindow.cpp\     \
-    memorymap.cpp
+    memorymap.cpp \
+    outputdataeditor.cpp
 
 HEADERS += \
+    crc32.h \
     ccodegen.h \
     dlgfield.h \
     lineedit.h \     \
     mainwindow.h \
-    memorymap.h
+    memorymap.h \
+    outputdataeditor.h
     mainwindow.h
 
 FORMS += \
@@ -51,3 +55,6 @@ include(../register/register.pri)
 
 RESOURCES += \
     regdecode.qrc
+
+DISTFILES += \
+    ../todo.txt
