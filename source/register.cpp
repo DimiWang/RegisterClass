@@ -82,6 +82,7 @@ bool Register::blockSignals(bool b)
 
 void Register::clear()
 {
+    clearTemporary();
     if(!isSub()){
         for(int i=0;i<m_fields.count();i++){
             delete m_fields.at(i);
@@ -887,7 +888,8 @@ void Register::makeTemporary()
 
 void Register::clearTemporary()
 {
-    mp_temporary->clear();
+    if(mp_temporary)
+        mp_temporary->clear();
 }
 
 void Register::moveOffset(unsigned int offset )

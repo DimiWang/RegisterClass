@@ -42,7 +42,7 @@ public:
     void analyzeChanges();
     void loadSettings();
     void saveSettings();
-    void loadRecentFiles();
+    void loadRecentFiles(bool save_again_enable= false);
     void setCurrentRecentStructure(const QString &filename);
     void saveRecentFiles();
     void addRecentFile(const QString &filename);
@@ -54,8 +54,8 @@ public:
 
     void updateFileNameTitle();
 
-    bool loadData(const QString &file_name, DataFormat format);
-    bool saveData(const QString &file_name, DataFormat format);
+    bool loadDataFile(const QString &file_name, DataFormat format);
+    bool saveDataFile(const QString &file_name, DataFormat format);
 
     // export to H
 //    void generateClassicH(const QString &filename);
@@ -69,7 +69,10 @@ Q_SIGNALS:
     void update_ui();
     void update_ui_controls();
     void dummyMsg(QString);
+    void sig_updateOutput();
     void sig_updateConsoleIcon();
+    void sig_updateEditFieldSize();
+    void sig_updateRecentDataFilesList();
 
 private slots:
     void selectEditFields(const QStringList &list);
@@ -78,6 +81,7 @@ private slots:
     void getSelectedFieldValue();
     void setSelectedFieldValue();
     void buildEditFieldList();
+    void updateEditFieldSize();
     void updateEditFieldFormat(const QString &format);
     void findTextItem_InMap(const QString &text);
     void updateConsoleIcon();
@@ -133,15 +137,11 @@ private slots:
 
     void on_pbReload_clicked();
 
-    void on_pbExporToCode_clicked();
-
-    void on_pushButton_clicked();    
+    void on_pbExporToCode_clicked();       
 
     void on_cmFieldEditType_currentIndexChanged(int index);    
 
-    void on_cbIgnoreSpareBits_toggled(bool checked);
-
-    void on_pushButton_2_clicked();
+    void on_cbIgnoreSpareBits_toggled(bool checked);    
 
     void on_pushButton_3_clicked();
 
@@ -169,7 +169,14 @@ private slots:
 
     void on_cbBitfieldOperationEnable_toggled(bool checked);
 
-    void on_leValue_returnPressed();
+    void on_leEditFieldValue_returnPressed();
+
+    void clearMap();
+
+    void on_pbClearMap_clicked();
+    void updateRecentDataFiles();
+    void loadRecentDataFile();
+    void saveRecentDataFile();
 
 protected:
     void closeEvent(QCloseEvent *ev);
@@ -204,22 +211,40 @@ private:
     void clearFieldLabels();
     void setupActions();
     QAction *actionByName(const QString &oper,const QString &action_name);
-    QAction *actLoadFileAsList[10];
-    QAction *actSaveFileAsList[10];
+    QList<QAction*> actLoadFileAsList;
+    int actionLoadFilesCount;
+    QList<QAction*> actSaveFileAsList;
+    int actionSaveFilesCount;
 
     QAction *actStructFileSave;
     QAction *actStructFileSaveAs;
     QAction *actStructFileRemove;
 
-    QHash<QString,QString> m_recent_files;
+    // recent
+    QHash<QString,QString> m_recent_structure_files;
+    //
+    typedef struct{
+        QString filepath;
+        DataFormat format;
+        QString caption;
+    }RecentFile;
+
+    QList<RecentFile> m_recent_save_files;
+    QList<RecentFile> m_recent_load_files;
+
+    // current structure path
     QString m_structure_file_path;
+    // current data file path
     QString m_data_file_path;
+    // curent data file format
     DataFormat m_data_file_format;
     void setLastDataFile(DataFormat format, const QString &filename);
     Ui::MainWindow *ui;
     QString representFieldAsString(Register *preg, BitField *f, Represent represent);
     QString buildJson();
-
+    void addRecentLoadDataFile(const RecentFile &recent_file);
+    void addRecentSaveDataFile(const RecentFile &recent_file);
+    QStringList editFieldsList();
 
     //QString parseRegChangedParams();
 };

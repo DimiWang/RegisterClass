@@ -82,60 +82,58 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->teResult,SIGNAL(findTextField(QString)),this,SLOT(findTextItem_InMap(QString)));
     ui->cbCaseSens->setChecked(1);    
     ui->tabWidget->setCurrentIndex(0);
-    connect(ui->leValue, SIGNAL(formatChanged(QString)), this, SLOT(updateEditFieldFormat(QString)));
+    connect(ui->leEditFieldValue, SIGNAL(formatChanged(QString)), this, SLOT(updateEditFieldFormat(QString)));
     connect(ui->teResult, SIGNAL(selectedWords(QStringList)),this, SLOT(selectEditFields(QStringList)));
+    connect(this->ui->cmEditField->lineEdit(),SIGNAL(textChanged(QString)),this, SLOT(updateEditFieldSize()),Qt::QueuedConnection);
+    connect(this,SIGNAL(sig_updateRecentDataFilesList()),this, SLOT(updateRecentDataFiles()),Qt::QueuedConnection);
+    connect(this,SIGNAL(sig_updateOutput()),this,SLOT(update_output()),Qt::QueuedConnection);
 }
 
 void MainWindow::setupActions()
-{
-    //-----
-    for(int i=0;i<10;i++){
-        actLoadFileAsList[i] =0;
-        actSaveFileAsList[i] =0;
-    }
+{    
 
         QAction *action;
         action = new QAction("as ASCII U32",0);
         action->setObjectName("ASCII_U32");
         ui->tbSaveFileAs->addAction(action);
         QObject::connect(action,SIGNAL(triggered(bool)),this,SLOT(saveFileAsU32()));
-        actSaveFileAsList[0] = action;
+        actSaveFileAsList.append(action);
 
         action = new QAction("as ASCII U8",0);
         action->setObjectName("ASCII_U8");
         ui->tbSaveFileAs->addAction(action);
         QObject::connect(action,SIGNAL(triggered(bool)),this,SLOT(saveFileAsU8()));
-        actSaveFileAsList[1] = action;
+        actSaveFileAsList.append(action);
 
         action = new QAction("as Verilog MEM",0);
         action->setObjectName("ASCII_MEM");
         ui->tbSaveFileAs->addAction(action);
         QObject::connect(action,SIGNAL(triggered(bool)),this,SLOT(saveFileAsVMEM()));
-        actSaveFileAsList[2] = action;
+        actSaveFileAsList.append(action);
 
         action = new QAction("as LIST",0);
         action->setObjectName("LIST");
         ui->tbSaveFileAs->addAction(action);
         QObject::connect(action,SIGNAL(triggered(bool)),this,SLOT(saveFileAsList()));
-        actSaveFileAsList[3] = action;
+        actSaveFileAsList.append( action);
 
         action = new QAction("as BIN",0);
         action->setObjectName("BIN");
         ui->tbSaveFileAs->addAction(action);
         QObject::connect(action,SIGNAL(triggered(bool)),this,SLOT(saveFileAsBin()));
-        actSaveFileAsList[4] = action;
+        actSaveFileAsList.append( action);
 
         action = new QAction("as CDE",0);
         action->setObjectName("CDE");
         ui->tbSaveFileAs->addAction(action);
         QObject::connect(action,SIGNAL(triggered(bool)),this,SLOT(saveFileAsCde()));
-        actSaveFileAsList[5]= action;
+        actSaveFileAsList.append(action);
 
         action = new QAction("as C code",0);
         action->setObjectName("CCODE");
         ui->tbSaveFileAs->addAction(action);
         QObject::connect(action,SIGNAL(triggered(bool)),this,SLOT(saveFileAsCCode()));
-        actSaveFileAsList[6]= action;
+        actSaveFileAsList.append(action);
 
 
         //default
@@ -145,38 +143,39 @@ void MainWindow::setupActions()
         action->setObjectName("ASCII_U32");
         ui->tbLoadFileAs->addAction(action);
         QObject::connect(action,SIGNAL(triggered(bool)),this,SLOT(loadFileAsU32()));
-        actLoadFileAsList[0] = action;
+        actLoadFileAsList.append( action);
 
         action = new QAction("as ASCII U8",0);
         action->setObjectName("ASCII_U8");
         ui->tbLoadFileAs->addAction(action);
         QObject::connect(action,SIGNAL(triggered(bool)),this,SLOT(loadFileAsU8()));
-        actLoadFileAsList[1] = action;
+        actLoadFileAsList.append(action);
 
         action = new QAction("as Verilog MEM",0);
         action->setObjectName("ASCII_MEM");
         ui->tbLoadFileAs->addAction(action);
         QObject::connect(action,SIGNAL(triggered(bool)),this,SLOT(loadFileAsVMEM()));
-        actLoadFileAsList[2] = action;
+        actLoadFileAsList.append( action);
 
         action = new QAction("as List",0);
         action->setObjectName("LIST");
         ui->tbLoadFileAs->addAction(action);
         QObject::connect(action,SIGNAL(triggered(bool)),this,SLOT(loadFileAsList()));
-        actLoadFileAsList[3] = action;
+        actLoadFileAsList.append( action);
 
         action = new QAction("as BIN",0);
         action->setObjectName("BIN");
         ui->tbLoadFileAs->addAction(action);
         QObject::connect(action,SIGNAL(triggered(bool)),this,SLOT(loadFileAsBin()));
-        actLoadFileAsList[4] = action;
+        actLoadFileAsList.append( action);
 
         action = new QAction("as CDE",0);
         action->setObjectName("CDE");
         ui->tbLoadFileAs->addAction(action);
         QObject::connect(action,SIGNAL(triggered(bool)),this,SLOT(loadFileAsCde()));
-        actLoadFileAsList[5] = action;
+        actLoadFileAsList.append( action);
 
+        // button  value set
         action = new QAction("Set");
         ui->tbEditFieldOper->addAction(action);
         QObject::connect(action,SIGNAL(triggered(bool)),this,SLOT(setSelectedFieldValue()));
@@ -194,6 +193,30 @@ void MainWindow::setupActions()
         ui->tbEditFieldOper->addAction(action);
         QObject::connect(action,SIGNAL(triggered(bool)),this,SLOT(fillMap0()));
 
+        action = new QAction("Remove");
+        ui->tbEditFieldOper->addAction(action);
+        action->setEnabled(0);
+        //QObject::connect(action,SIGNAL(triggered(bool)),this,SLOT(removeSelectedField()));
+
+        // recents
+        for(int i=0;i<5;i++){
+
+            //load
+            action = new QAction("-");
+            action->setVisible(0);
+            action->setProperty("num",i);
+            QObject::connect(action,SIGNAL(triggered(bool)),this,SLOT(loadRecentDataFile()));
+            actLoadFileAsList.append(action);
+            ui->tbLoadFileAs->addAction(action);
+
+            //save
+            action = new QAction("-");
+            action->setVisible(0);
+            action->setProperty("num",i);
+            QObject::connect(action,SIGNAL(triggered(bool)),this,SLOT(saveRecentDataFile()));
+            actSaveFileAsList.append(action);
+            ui->tbSaveFileAs->addAction(action);
+        }
 
 }
 
@@ -230,14 +253,14 @@ QString wordWrap(const QString &text, int maxSymbols) {
 QAction *MainWindow::actionByName(const QString &oper,const QString &action_name)
 {
     if(oper=="Save"){
-        for(int i=0;i<10;i++){
+        for(int i=0;i<actSaveFileAsList.count();i++){
             if(actSaveFileAsList[i] == 0) break;
             if(actSaveFileAsList[i]->objectName() == action_name){
                 return actSaveFileAsList[i];
             }
         }
     }else if(oper=="Load"){
-        for(int i=0;i<10;i++){
+        for(int i=0;i<actLoadFileAsList.count();i++){
             if(actLoadFileAsList[i] == 0) break;
             if(actLoadFileAsList[i]->objectName() == action_name){
                 return actLoadFileAsList[i];
@@ -248,6 +271,48 @@ QAction *MainWindow::actionByName(const QString &oper,const QString &action_name
     return 0;
 }
 
+void MainWindow::updateRecentDataFiles()
+{
+    for(int i=0;i<5;i++){
+        QAction *actLoad = actLoadFileAsList[actLoadFileAsList.count()-5+i];
+        QAction *actSave = actSaveFileAsList[actSaveFileAsList.count()-5+i];
+        //load
+        if(i<m_recent_load_files.count()){
+            RecentFile &file = m_recent_load_files[i];
+            actLoad->setVisible(1);
+            actLoad->setText(QFileInfo(file.filepath).fileName() +" " + file.caption);
+        }else{
+            actLoad->setVisible(0);
+            actLoad->setText("-");
+        }
+        //save
+        if(i<m_recent_save_files.count()){
+            RecentFile &file = m_recent_save_files[i];
+            actSave->setVisible(1);
+            actSave->setText(QFileInfo(file.filepath).fileName() +" " + file.caption);
+        }else{
+            actSave->setVisible(0);
+            actSave->setText("-");
+        }
+    }
+}
+
+void MainWindow::loadRecentDataFile()
+{
+    QAction *act = static_cast<QAction*>(QObject::sender());
+    int file_n = act->property("num").toInt();
+    RecentFile &recent_file = m_recent_load_files[file_n];    
+    loadDataFile(recent_file.filepath,recent_file.format); 
+}
+
+void MainWindow::saveRecentDataFile()
+{
+    QAction *act = static_cast<QAction*>(QObject::sender());
+    int file_n = act->property("num").toInt();
+    RecentFile &recent_file = m_recent_save_files[file_n];
+    saveDataFile(recent_file.filepath, recent_file.format);
+}
+
 
 void MainWindow::analyzeChanges()
 {
@@ -256,7 +321,9 @@ void MainWindow::analyzeChanges()
 
 void MainWindow::loadSettings()
 {
-    QSettings settings(QString("%2/%1.ini").arg(qApp->applicationName()).arg(qApp->applicationDirPath()),QSettings::IniFormat);
+    QSettings settings(QString("%2/%1.ini").arg(qApp->applicationName()).arg(qApp->applicationDirPath())
+                       ,QSettings::IniFormat);
+
     m_settings_ascii_windows = settings.value("General/ascii_windows_crlf",false).toBool();        
     ui->cmDefaultFieldValue->setCurrentIndex( settings.value("General/default_value",0/*off*/).toInt());
     ui->cbUseWindowsCRLF->blockSignals(1);
@@ -292,20 +359,25 @@ void MainWindow::saveSettings()
     QSettings settings(QString("%2/%1.ini").arg(qApp->applicationName()).arg(qApp->applicationDirPath()),QSettings::IniFormat);
     settings.setValue("General/ascii_windows_crlf", m_settings_ascii_windows );
     settings.setValue("General/default_value", ui->cmDefaultFieldValue->currentIndex() );
-    // ----------------
+    // representation
     settings.beginGroup("Repr");
     settings.setValue("Format",ui->cmBitRepr->currentIndex());
     settings.setValue("ShowDescr",ui->cbDescr->isChecked());
     settings.setValue("TrimValues",ui->cbTrim->isChecked());
     settings.endGroup();
+    //state
     settings.beginGroup("State");
     settings.setValue("DataSaveButton",ui->tbSaveFileAs->defaultAction()->objectName());
     settings.setValue("DataLoadButton",ui->tbLoadFileAs->defaultAction()->objectName());
     settings.endGroup();
+    settings.beginGroup("Files");
+    settings.setValue("DataLoadFiles",ui->tbSaveFileAs->defaultAction()->objectName());
+    settings.setValue("DataSaveFiles",ui->tbLoadFileAs->defaultAction()->objectName());
+    settings.endGroup();
 }
 
-void MainWindow::loadRecentFiles(){
-    QSettings settings(QString("%2/%1.ini").arg(qApp->applicationName()).arg(qApp->applicationDirPath()));
+void MainWindow::loadRecentFiles(bool save_again_enable){
+    QSettings settings(QString("%2/%1.ini").arg(qApp->applicationName()).arg(qApp->applicationDirPath()),QSettings::IniFormat);
 
     const QVariantList files_list = settings.value("Files/RecentFiles",QVariant()).toList();
     bool save_again = false;
@@ -314,18 +386,18 @@ void MainWindow::loadRecentFiles(){
     ui->cmStructure->blockSignals(1);
     ui->cmStructure->clear();
     ui->cmStructure->addItem("Load...");
-    m_recent_files.clear();
+    m_recent_structure_files.clear();
 
     for(int i=0;i<files_list.count();i++){
         QFileInfo fi(files_list.at(i).toString());
         if(QFile::exists(fi.filePath())){
-            m_recent_files[fi.baseName()]=fi.filePath();
+            m_recent_structure_files[fi.baseName()]=fi.filePath();
         }
         else save_again = true;
     }
 
 
-    ui->cmStructure->addItems(m_recent_files.keys());
+    ui->cmStructure->addItems(m_recent_structure_files.keys());
 
     if(!bak_itemname.isEmpty() && ui->cmStructure->findText(bak_itemname))
         setCurrentRecentStructure(bak_itemname);
@@ -333,7 +405,7 @@ void MainWindow::loadRecentFiles(){
     ui->cmStructure->blockSignals(0);
 
 
-    if(save_again){
+    if(save_again_enable && save_again){
         saveRecentFiles();
     }
 
@@ -350,11 +422,10 @@ void MainWindow::setCurrentRecentStructure(const QString &filename)
 }
 
 void MainWindow::on_pbApply_clicked()
-{                
-    m_map.clear();
+{                    
     applyStructure();       
     Q_EMIT update_ui();    
-    update_output();    
+    Q_EMIT sig_updateOutput();
 }
 
 void MainWindow::applyStructure(){
@@ -362,7 +433,7 @@ void MainWindow::applyStructure(){
     t.start();
     quint32 load_options =0;
 
-    m_map.clear();    
+    clearMap();
     if(!m_map.loadJsonData(ui->teRegister->toPlainText().toLatin1(),load_options)){
         QMessageBox::critical(0,"JSON Error","Error parsing JSON data");
         ui->pbConsole->setEnabled(1);
@@ -396,14 +467,15 @@ void textFormat( QString *text){
     }
 }
 
-bool MainWindow::loadData(const QString &file_name, DataFormat format){
+bool MainWindow::loadDataFile(const QString &file_name, DataFormat format){
 
     QFile f;
+    qDebug()<<"loadDataFile"<<format<<file_name;
     if(file_name.isEmpty() || !QFile::exists(file_name)) return false;
 
     f.setFileName(file_name);
     if(QFile::exists(file_name) && f.open(QFile::ReadOnly)){
-        QByteArray file_data =f.readAll();
+        QByteArray file_data =f.readAll();        
         switch(format){
 
         case DataFormatUnknown:
@@ -528,10 +600,17 @@ bool MainWindow::loadData(const QString &file_name, DataFormat format){
 
 
         ui->tbLoadFileAs->setDefaultAction(actLoadFileAsList[format]);
-        setLastDataFile(format,QFileInfo(f).filePath());
+        setLastDataFile(format, QFileInfo(f).filePath());
 
+        // add recent file
+        RecentFile recent_file;
+        recent_file.caption = actLoadFileAsList[format]->text();
+        recent_file.format = format;
+        recent_file.filepath = QFileInfo(f).filePath();
+        addRecentLoadDataFile(recent_file);
 
-        Q_EMIT update();
+        Q_EMIT sig_updateOutput();
+
 
     }else{
         QMessageBox::critical(0,"reading",QString("Can't open file"));
@@ -565,10 +644,11 @@ void MainWindow::setLastDataFile(DataFormat format, const QString &filename)
     }
 }
 
-bool MainWindow::saveData(const QString &file_name, DataFormat format)
+bool MainWindow::saveDataFile(const QString &file_name, DataFormat format)
 {
     bool result =false;
     QFile f(file_name);
+    qDebug()<<"saveDataFile"<<file_name<<format;
     if(file_name.isEmpty() ) return false;
 
     if( f.open(QFile::WriteOnly)){
@@ -745,6 +825,12 @@ bool MainWindow::saveData(const QString &file_name, DataFormat format)
             m_data_file_path = QFileInfo(f).filePath();
             m_data_file_format = format;
             ui->pbReloadDataFile->setEnabled(1);
+
+            RecentFile recent_file;
+            recent_file.caption = actSaveFileAsList[format]->text();
+            recent_file.filepath = QFileInfo(f).filePath();
+            recent_file.format = format;
+            addRecentSaveDataFile(recent_file);
         }
         f.close();
     }
@@ -783,8 +869,10 @@ void MainWindow::findTextInData()
         if(cursor.position()<0){
             m_cursor_position = 0;
             cursor = ui->teResult->document()->find(ui->leFindText->text(),0);
+
         }
-        ui->teResult->setTextCursor(cursor);
+        if(!cursor.isNull())
+            ui->teResult->setTextCursor(cursor);
     }
     else {
         ui->lbFindCount->setText(QString("not found"));
@@ -801,7 +889,7 @@ void MainWindow::updateConsoleIcon()
 
 void MainWindow::saveRecentFiles(){
     QSettings settings(QString("%2/%1.ini").arg(qApp->applicationName()).arg(qApp->applicationDirPath()),QSettings::IniFormat);
-    const QStringList list = m_recent_files.values();
+    const QStringList list = m_recent_structure_files.values();
     settings.setValue("Files/RecentFiles",list);
 }
 
@@ -809,7 +897,7 @@ void MainWindow::addRecentFile(const QString &filename)
 {
     QFileInfo fi(filename);
     const QString key = fi.baseName();
-    m_recent_files[key] =fi.filePath();
+    m_recent_structure_files[key] =fi.filePath();
     ui->cmStructure->addItem(key);
     if(ui->cmStructure->findText(key)>=0){
         ui->cmStructure->setCurrentIndex(ui->cmStructure->findText(key));
@@ -823,43 +911,42 @@ void MainWindow::setSelectedFieldValue()
     {
     case 0:
         if(ui->cmEditField->currentText().contains(";")){
-            const QStringList fields = ui->cmEditField->currentText().split(";",QString::SkipEmptyParts);
-            qDebug()<<fields;
+            const QStringList fields = ui->cmEditField->currentText().split(";",QString::SkipEmptyParts);            
             Register *r = m_map.sub(fields);
             if(r->size()>32){
-                r->fromHex(ui->leValue->text());
+                r->fromHex(ui->leEditFieldValue->text());
             }
             else{
-                r->setValue(ui->leValue->value());
+                r->setValue(ui->leEditFieldValue->value());
             }
         }
         else if(m_map.field(ui->cmEditField->currentText()) ){
                 BitField *field = m_map.field(ui->cmEditField->currentText());
                 if(field->size()>32){
-                    field->fromHex(ui->leValue->text());
+                    field->fromHex(ui->leEditFieldValue->text());
                 }
                 else{
-                    field->setValue(ui->leValue->value());
+                    field->setValue(ui->leEditFieldValue->value());
                 }
         }
         break;
     case 1:{
         quint32 bit_addr = ui->cmEditField->currentData().toUInt()*8;
-        m_map.sub(bit_addr,bit_addr+7)->setValue(ui->leValue->value());
+        m_map.sub(bit_addr,bit_addr+7)->setValue(ui->leEditFieldValue->value());
         break;
     }
     case 2:{
         quint32 bit_addr = ui->cmEditField->currentData().toUInt()*8;
-        m_map.setValue(bit_addr,bit_addr+31,ui->leValue->value());
+        m_map.setValue(bit_addr,bit_addr+31,ui->leEditFieldValue->value());
         break;
     }
     case 3:{
         quint32 bit_addr = ui->cmEditField->currentData().toUInt()*8;
         Register *r = m_map.sub(m_filteredFieldsList);
         if( r->size() > 32 ){
-            r->fromHex(ui->leValue->text());
+            r->fromHex(ui->leEditFieldValue->text());
         }else{
-            r->setValue(ui->leValue->value());
+            r->setValue(ui->leEditFieldValue->value());
         }
         break;
     }
@@ -915,6 +1002,37 @@ void MainWindow::buildEditFieldList()
     ui->cmEditField->blockSignals(0);
 }
 
+void MainWindow::updateEditFieldSize()
+{
+    switch(ui->cmFieldEditType->currentIndex())
+    {
+    case 0:
+
+        if(ui->cmEditField->currentText().contains(";")){
+            const QStringList fields = ui->cmEditField->currentText().split(";",QString::SkipEmptyParts);
+            Register *r = m_map.sub(fields);
+            ui->lbFieldInfo->setText(QString("%1 bits").arg(r->size()));
+        }
+        else if(ui->cmEditField->currentIndex()>=0
+                && m_map.contains(ui->cmEditField->itemText(ui->cmEditField->currentIndex())))
+        {
+            BitField *f = m_map.field(ui->cmEditField->itemText(ui->cmEditField->currentIndex()));
+            ui->lbFieldInfo->setText(QString("%1 bits").arg(f->size()));
+        }
+        break;
+    case 1:
+        ui->lbFieldInfo->setText(QString("8 bits"));
+        break;
+    case 2:
+        ui->lbFieldInfo->setText(QString("32 bits"));
+        break;
+    case 3:
+            // TBD
+        ui->lbFieldInfo->setText(QString("...."));
+        break;
+    }
+}
+
 
 
 void MainWindow::on_cmStructure_activated(int index)
@@ -924,17 +1042,17 @@ void MainWindow::on_cmStructure_activated(int index)
         QString filename = QFileDialog::getOpenFileName(0,"",QFileInfo(m_structure_file_path).path(),"JSON (*.json)",0);
         if(QFile::exists(filename)){
 
-            if(loadStructureFile(filename)){
-                addRecentFile(filename);
+            if(loadStructureFile(filename)){                
+                addRecentFile(filename);                
                 saveRecentFiles();
                 //load them back
-                loadRecentFiles();
+                loadRecentFiles(false);
                 applyStructure();
             }
         }
     }
     else{
-        m_structure_file_path = m_recent_files[ui->cmStructure->currentText()];
+        m_structure_file_path = m_recent_structure_files[ui->cmStructure->currentText()];
         loadStructureFile(m_structure_file_path);
         applyStructure();
     }
@@ -945,8 +1063,9 @@ bool MainWindow::loadStructureFile(const QString &filename){
     if(f.open(QIODevice::ReadOnly)){
         ui->teRegister->setPlainText(f.readAll());
         ui->cmStructure->setToolTip(filename);
+        ui->leFilter->clear();
         f.close();
-        Q_EMIT update();
+        Q_EMIT sig_updateOutput();
         return true;
     }
     else{
@@ -1215,13 +1334,61 @@ QString MainWindow::buildJson()
     return result;
 }
 
+void MainWindow::addRecentLoadDataFile(const RecentFile &recent_file)
+{
+    int i=0;
+    for(;i<m_recent_load_files.count();i++){
+        if(m_recent_load_files.at(i).filepath == recent_file.filepath){
+            m_recent_load_files.removeAt(i);
+            i--;
+        }
+    }
+    m_recent_load_files.insert(0, recent_file);
+    while(m_recent_load_files.count()>5){
+        m_recent_load_files.removeLast();
+    }
+    Q_EMIT sig_updateRecentDataFilesList();
+}
+
+void MainWindow::addRecentSaveDataFile(const RecentFile &recent_file)
+{
+    int i=0;
+    for(;i<m_recent_save_files.count();i++){
+        if(m_recent_save_files.at(i).filepath == recent_file.filepath){
+            m_recent_save_files.removeAt(i);
+            i--;
+        }
+    }
+    m_recent_save_files.insert(0,recent_file);
+    while(m_recent_save_files.count()>5){
+        m_recent_save_files.removeLast();
+    }
+
+    Q_EMIT sig_updateRecentDataFilesList();
+}
+
+QStringList MainWindow::editFieldsList()
+{
+    QStringList fields;
+    if(ui->cmEditField->currentText().contains(";")){
+        fields = ui->cmEditField->currentText().split(";",QString::SkipEmptyParts);
+    }else{
+        fields.append(ui->cmEditField->currentText());
+    }
+    return fields;
+}
+
 
 
 void MainWindow::update_output()
 {    
     Register *r;
     Register *r2;
-    QTextCursor bak_textCursor = ui->teResult->textCursor();
+    int bak_selection_start=-1, bak_selection_stop=-1;
+    if(ui->teResult->textCursor().hasSelection()){
+        bak_selection_start = ui->teResult->textCursor().selectionStart();
+        bak_selection_stop = ui->teResult->textCursor().selectionEnd();
+    }
 
     if(ui->leFilter->text().isEmpty()) r = &m_map;
     else r = m_map.temporary();
@@ -1267,8 +1434,14 @@ void MainWindow::update_output()
             ui->teResult->appendHtml(QString("<b>___TOTAL=%1(0x%2)bytes or %3 bits___</b>").arg(r->size()/8).arg(r->size()/8,0,16).arg(r->size()));
     }
 
+    if(bak_selection_start >=0 && bak_selection_stop>=0){
+        QTextCursor cursor =  ui->teResult->textCursor();
+        cursor.setPosition(bak_selection_start,QTextCursor::MoveAnchor);
+        cursor.setPosition(bak_selection_stop,QTextCursor::KeepAnchor);
+        ui->teResult->setTextCursor(cursor);
+    }
     ui->teResult->verticalScrollBar()->setValue(bak_scroll_bar);
-    ui->teResult->setTextCursor(bak_textCursor);
+
 }
 
 
@@ -1300,14 +1473,13 @@ void MainWindow::getSelectedFieldValue(){
     case 0:
 
         if(ui->cmEditField->currentText().contains(";")){
-            const QStringList fields = ui->cmEditField->currentText().split(";",QString::SkipEmptyParts);
-            qDebug()<<fields;
+            const QStringList fields = ui->cmEditField->currentText().split(";",QString::SkipEmptyParts);            
             Register *r = m_map.sub(fields);
             if(r->size()>32){
-                ui->leValue->setText(r->toHex());
+                ui->leEditFieldValue->setText(r->toHex());
             }
             else{
-                ui->leValue->setValue(r->toUInt());
+                ui->leEditFieldValue->setValue(r->toUInt());
             }
         }
         else if(ui->cmEditField->currentIndex()>=0
@@ -1315,24 +1487,21 @@ void MainWindow::getSelectedFieldValue(){
         {
             BitField *f = m_map.field(ui->cmEditField->itemText(ui->cmEditField->currentIndex()));
             if(f->size()>32){
-                ui->leValue->setText(f->toHex());
+                ui->leEditFieldValue->setText(f->toHex());
             }else{
-                ui->leValue->setValue(f->value());
-            }
-            ui->lbFieldInfo->setText(QString("%1 bits").arg(f->size()));
+                ui->leEditFieldValue->setValue(f->value());
+            }            
         }
         break;
     case 1:{
         quint32 addr_bit = ui->cmEditField->currentData().toUInt()*8;
-        ui->leValue->setValue(m_map.value(addr_bit,addr_bit+7));
-    }
-        ui->lbFieldInfo->setText(QString("8 bits"));
+        ui->leEditFieldValue->setValue(m_map.value(addr_bit,addr_bit+7));
+    }        
         break;
     case 2:{
         quint32 addr_bit = ui->cmEditField->currentData().toUInt()*8;
-        ui->leValue->setValue(m_map.value(addr_bit,addr_bit+31));
-    }
-        ui->lbFieldInfo->setText(QString("32 bits"));
+        ui->leEditFieldValue->setValue(m_map.value(addr_bit,addr_bit+31));
+    }     
         break;
     }
 }
@@ -1341,7 +1510,7 @@ void MainWindow::getSelectedFieldValue(){
 void MainWindow::removeStructureFile()
 {
     if(!ui->cmStructure->currentText().isEmpty()
-            && m_recent_files.contains(ui->cmStructure->currentText())){
+            && m_recent_structure_files.contains(ui->cmStructure->currentText())){
 
         QMessageBox msg;
         msg.setWindowTitle("");
@@ -1349,9 +1518,9 @@ void MainWindow::removeStructureFile()
         msg.setStandardButtons(QMessageBox::Yes|QMessageBox::No);
         int r = msg.exec();
         if(r == QMessageBox::Yes)
-            QFile::remove(m_recent_files[ui->cmStructure->currentText()]);
+            QFile::remove(m_recent_structure_files[ui->cmStructure->currentText()]);
 
-        m_recent_files.remove(ui->cmStructure->currentText());
+        m_recent_structure_files.remove(ui->cmStructure->currentText());
         saveRecentFiles();
         loadRecentFiles();
 
@@ -1412,7 +1581,7 @@ void MainWindow::keyPressEvent(QKeyEvent * const event)
             event->accept();
         }else if(event->key()==Qt::Key_Escape){
             ui->wgFindText->setVisible(0);
-            ui->teResult->setFocus();
+            ui->teResult->setFocus();            
             ui->teResult->setTextCursor(m_backup_cursor);
             event->accept();
         }
@@ -1432,12 +1601,11 @@ void MainWindow::on_pbReloadDataFile_clicked()
         QMessageBox::critical(0,"Error", "Structure is empty!", QMessageBox::Ok);
         return;
     }
-
-    if(loadData(m_data_file_path, m_data_file_format) == false){
+    applyStructure();
+    if(loadDataFile(m_data_file_path, m_data_file_format) == false){
 
         setLastDataFile(DataFormatUnknown, "");
     }
-    else update_output();
 }
 
 
@@ -1864,13 +2032,29 @@ void MainWindow::selectEditFields(const QStringList &list)
 
 void MainWindow::fillMap1()
 {
-    m_map.fill(1);
+    QStringList fields = editFieldsList();
+    if(fields.count()>1)
+    {
+        Register *r = m_map.sub(fields);
+        r->fill(1);
+    }
+    else {
+        m_map.fill(1);
+    }
     update_output();
 }
 
 void MainWindow::fillMap0()
 {
-    m_map.fill(0);
+    QStringList fields = editFieldsList();
+    if(fields.count()>1)
+    {
+        Register *r = m_map.sub(fields);
+        r->fill(0);
+    }
+    else {
+        m_map.fill(0);
+    }
     update_output();
 }
 
@@ -2005,15 +2189,6 @@ void MainWindow::on_pbExporToCode_clicked() // sheet code as a concept
 }
 
 
-void MainWindow::on_pushButton_clicked()
-{
-    for(int i=0;i<m_map.fieldsList().size();i++){
-            qDebug()<<m_map.field(i)->name()<<m_map.field(i)->extra("path")<<m_map.field(i)->size();
-
-    }
-}
-
-
 //void MainWindow::on_pbSaveJson_clicked()
 //{
 //    //    QString filename;
@@ -2057,7 +2232,7 @@ void MainWindow::loadFileAsList()
     filename = QFileDialog::getOpenFileName(0,"Load as list",m_data_file_path,"Text file(*.txt)");
     const bool dlg_cancel = filename.isEmpty();
     if(!dlg_cancel){
-        load_data_ok = loadData(filename, DataFormatAsLIST);
+        load_data_ok = loadDataFile(filename, DataFormatAsLIST);
         ui->pbApply->setEnabled(1);
         if(load_data_ok){
             m_data_file_path = QFileInfo(filename).filePath();
@@ -2080,7 +2255,7 @@ void MainWindow::loadFileAsVMEM()
     filename = QFileDialog::getOpenFileName(0,"Load as Verilog Memory",m_data_file_path,"Verilog Memory(*.hex)");
     const bool dlg_cancel = filename.isEmpty();
     if(!dlg_cancel){
-        load_data_ok = loadData(filename, DataFormatAsVMEM);
+        load_data_ok = loadDataFile(filename, DataFormatAsVMEM);
         ui->pbApply->setEnabled(1);
         if(load_data_ok){
             m_data_file_path = QFileInfo(filename).filePath();
@@ -2103,7 +2278,7 @@ void MainWindow::loadFileAsU8()
     filename = QFileDialog::getOpenFileName(0,"Load as U8",m_data_file_path,"Mem file ISP(*.mem)");
     const bool dlg_cancel = filename.isEmpty();
     if(!dlg_cancel){
-        load_data_ok = loadData(filename, DataFormatAsU8);
+        load_data_ok = loadDataFile(filename, DataFormatAsU8);
         ui->pbApply->setEnabled(1);
         if(load_data_ok){
             m_data_file_path = QFileInfo(filename).filePath();
@@ -2126,7 +2301,7 @@ void MainWindow::loadFileAsU32()
     filename = QFileDialog::getOpenFileName(0,"Load as ASCII U32",m_data_file_path,"Text(*.txt *.hex)");
     const bool dlg_cancel = filename.isEmpty();
     if(!dlg_cancel){
-        load_data_ok = loadData(filename, DataFormatAsU32);
+        load_data_ok = loadDataFile(filename, DataFormatAsU32);
         ui->pbApply->setEnabled(1);
         if(load_data_ok){
             m_data_file_path = QFileInfo(filename).filePath();
@@ -2149,7 +2324,7 @@ void MainWindow::loadFileAsBin()
     filename = QFileDialog::getOpenFileName(0,"Load as binary",m_data_file_path,"Binary Image(*.bin *.sb3 *.sb4);;Other binary(*.*)");
     const bool dlg_cancel = filename.isEmpty();
     if(!dlg_cancel){
-        load_data_ok = loadData(filename, DataFormatAsBinary);
+        load_data_ok = loadDataFile(filename, DataFormatAsBinary);
         ui->pbApply->setEnabled(1);
         if(load_data_ok){
             m_data_file_path = QFileInfo(filename).filePath();
@@ -2172,7 +2347,7 @@ void MainWindow::loadFileAsCde()
     filename = QFileDialog::getOpenFileName(0,"Load as CDE",m_data_file_path,"CDE (*.cde);;Other binary(*.*)");
     const bool dlg_cancel = filename.isEmpty();
     if(!dlg_cancel){
-        load_data_ok = loadData(filename, DataFormatAsCDE);
+        load_data_ok = loadDataFile(filename, DataFormatAsCDE);
         ui->pbApply->setEnabled(1);
         if(load_data_ok){
             m_data_file_path = QFileInfo(filename).filePath();
@@ -2188,7 +2363,7 @@ void MainWindow::saveFileAsList()
     QString filename = QFileDialog::getSaveFileName(0,"Save As List",m_data_file_path,"Text File(*.txt)",0);
     const bool dlg_cancel = filename.isEmpty();
     if(!dlg_cancel){
-        if(!saveData(filename, MainWindow::DataFormatAsLIST)){
+        if(!saveDataFile(filename, MainWindow::DataFormatAsLIST)){
             QMessageBox::critical(0,"Error",QString("Can't save file %1").arg(filename));
         }else{
             updateFileNameTitle();
@@ -2201,7 +2376,7 @@ void MainWindow::saveFileAsU8()
     QString filename = QFileDialog::getSaveFileName(0,"Save As Ascii U8",m_data_file_path,"Text (*.txt *.mem)",0);
     const bool dlg_cancel = filename.isEmpty();
     if(!dlg_cancel){
-        if(!saveData(filename,MainWindow::DataFormatAsU8)){
+        if(!saveDataFile(filename,MainWindow::DataFormatAsU8)){
             QMessageBox::critical(0,"writing",QString("Can't open file"));
         }else{
             updateFileNameTitle();
@@ -2214,7 +2389,7 @@ void MainWindow::saveFileAsVMEM()
     QString filename = QFileDialog::getSaveFileName(0,"Save As Verilog Memory",m_data_file_path,"Verilog Memory (*.hex)",0);
     const bool dlg_cancel = filename.isEmpty();
     if(!dlg_cancel){
-        if(!saveData(filename,MainWindow::DataFormatAsVMEM)){
+        if(!saveDataFile(filename,MainWindow::DataFormatAsVMEM)){
             QMessageBox::critical(0,"writing",QString("Can't open file"));
         }else{
             updateFileNameTitle();
@@ -2228,7 +2403,7 @@ void MainWindow::saveFileAsU32()
     const QString filename = QFileDialog::getSaveFileName(0,"Save As ASCII U32",m_data_file_path,"Text (*.txt *.hex)",0);
     const bool dlg_cancel = filename.isEmpty();
     if(!dlg_cancel){
-        if(!saveData(filename, MainWindow::DataFormatAsU32)){
+        if(!saveDataFile(filename, MainWindow::DataFormatAsU32)){
             QMessageBox::critical(0,"writing",QString("Can't save file"));
         }else{
             updateFileNameTitle();
@@ -2241,7 +2416,7 @@ void MainWindow::saveFileAsBin()
     const QString filename = QFileDialog::getSaveFileName(0,"Save As BIN",m_data_file_path,"Binary Images(*.bin *.sb3 *.sb4);;Other binary(*.*)",0);
     const bool dlg_cancel = filename.isEmpty();
     if(!dlg_cancel){
-        if(!saveData(filename, MainWindow::DataFormatAsBinary)){
+        if(!saveDataFile(filename, MainWindow::DataFormatAsBinary)){
             QMessageBox::critical(0,"writing",QString("Can't save file"));
         }else{
             updateFileNameTitle();
@@ -2254,7 +2429,7 @@ void MainWindow::saveFileAsCde()
     const QString filename = QFileDialog::getSaveFileName(0,"Save As CDE",m_data_file_path,"CDE (*.cde)",0);
     const bool dlg_cancel = filename.isEmpty();
     if(!dlg_cancel){
-        if(!saveData(filename, MainWindow::DataFormatAsCDE)){
+        if(!saveDataFile(filename, MainWindow::DataFormatAsCDE)){
             QMessageBox::critical(0,"writing",QString("Can't save file"));
         }else{
             updateFileNameTitle();
@@ -2267,7 +2442,7 @@ void MainWindow::saveFileAsCCode()
     const QString filename = QFileDialog::getSaveFileName(0,"Save As C Code",m_data_file_path,"C file (*.c)",0);
     const bool dlg_cancel = filename.isEmpty();
     if(!dlg_cancel){
-        if(!saveData(filename, MainWindow::DataFormatAsCCODE)){
+        if(!saveDataFile(filename, MainWindow::DataFormatAsCCODE)){
             QMessageBox::critical(0,"writing",QString("Can't save file"));
         }else{
             updateFileNameTitle();
@@ -2296,7 +2471,7 @@ void MainWindow::on_cmFieldEditType_currentIndexChanged(int index)
     buildEditFieldList();
     if(ui->cmFieldEditType->currentIndex() == 3){
         ui->cmEditField->setVisible(0);
-        ui->leValue->setEditTextMode(1);
+        ui->leEditFieldValue->setEditTextMode(1);
     }else{
         ui->cmEditField->setVisible(1);
     }
@@ -2325,16 +2500,6 @@ void MainWindow::on_cbIgnoreSpareBits_toggled(bool checked)
     update_output();
 }
 
-
-
-void MainWindow::on_pushButton_2_clicked()
-{    
-    m_map.clear();    
-    qDeleteAll(m_field_labels.begin(),m_field_labels.end());    
-    m_field_labels.clear();    
-    emit update_ui();
-    update_output();
-}
 
 
 QLabel* MainWindow::makeFieldLabel(const BitFieldInfo &fi)
@@ -2544,8 +2709,24 @@ void MainWindow::on_cbBitfieldOperationEnable_toggled(bool checked)
 }
 
 
-void MainWindow::on_leValue_returnPressed()
+void MainWindow::on_leEditFieldValue_returnPressed()
 {
     setSelectedFieldValue();
+}
+
+void MainWindow::clearMap()
+{
+    qDebug()<<"clearMap";
+    m_filteredFieldsList.clear();
+    m_map.clear();
+    //qDeleteAll(m_field_labels.begin(),m_field_labels.end());
+    //m_field_labels.clear();
+    Q_EMIT update_ui();
+    Q_EMIT sig_updateOutput();
+}
+
+void MainWindow::on_pbClearMap_clicked()
+{
+    clearMap();
 }
 
